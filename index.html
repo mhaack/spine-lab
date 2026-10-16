@@ -17,6 +17,7 @@
   --bg:#131716; --panel:#1B201F; --fg:#E6EBE9; --muted:#93A09B; --line:#2D3533; --accent:#93A9F2;
   --ok:#6CC08F; --warn:#E0B04A; --bad:#EE7B6E; color-scheme:dark}}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 var(--f-body);
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
@@ -58,6 +59,16 @@ summary{cursor:pointer;font-weight:600;font-size:14px}
 pre{margin:8px 0 0;font:12px/1.45 var(--f-mono);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;max-height:340px}
 .status{font:13px var(--f-mono);color:var(--muted);min-height:1.5em;margin:0}
 .batchbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+/* Scanner */
+.scanbar{display:flex;gap:8px;flex-wrap:wrap}
+.scanner{position:relative;background:#000;border-radius:10px;overflow:hidden}
+#reader{width:100%}
+#reader video{display:block;width:100%!important;height:auto!important;object-fit:cover}
+#reader img[alt="Info icon"],#reader__dashboard_section_csr span{display:none!important}
+.scanguide{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+.scanguide div{width:78%;height:34%;border:2px solid rgba(255,255,255,.85);border-radius:8px;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
+.scanguide div::after{content:"";position:absolute;left:11%;right:11%;top:50%;height:2px;background:#E2583A;opacity:.9}
+.scanhint{font:13px var(--f-body);color:var(--muted);margin:0}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -65,7 +76,7 @@ pre{margin:8px 0 0;font:12px/1.45 var(--f-mono);background:var(--bg);border:1px 
 <div class="wrap">
   <header>
     <h1>Spine Lab · ISBN Test</h1>
-    <p class="sub">Look up one ISBN in the DNB, the Library of Congress, Google Books and Open Library and see which source has pages, height and a cover.</p>
+    <p class="sub">Scan or type an ISBN. The page looks it up in the DNB, the Library of Congress, Google Books and Open Library and shows which source has pages, height and a cover.</p>
   </header>
 
   <form id="f">
@@ -73,6 +84,17 @@ pre{margin:8px 0 0;font:12px/1.45 var(--f-mono);background:var(--bg);border:1px 
     <input id="isbn" inputmode="numeric" autocomplete="off" placeholder="ISBN, e.g. 978-3-257-22800-7" aria-label="ISBN">
     <button class="primary" id="go">Look up</button>
   </form>
+  <div class="scanbar">
+    <button type="button" id="scanBtn">Scan barcode</button>
+    <button type="button" id="photoBtn">Scan from photo</button>
+    <input id="photo" type="file" accept="image/*" capture="environment" hidden>
+  </div>
+  <section class="panel" id="scanPanel" hidden>
+    <h2>Barcode scanner</h2>
+    <div class="scanner"><div id="reader"></div><div class="scanguide" aria-hidden="true"><div></div></div></div>
+    <p class="scanhint" id="scanHint">Hold the EAN barcode on the back cover inside the frame.</p>
+    <div class="scanbar"><button type="button" id="stopBtn">Stop</button></div>
+  </section>
   <div class="chips" id="samples" aria-label="Test ISBNs"></div>
   <p class="status" id="status" role="status"></p>
 
@@ -90,6 +112,7 @@ pre{margin:8px 0 0;font:12px/1.45 var(--f-mono);background:var(--bg);border:1px 
   <p class="meta">Endpoint: <span id="ep"></span></p>
 </div>
 
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
 const ENDPOINT = "https://itzvyiwotjxywkpesznj.supabase.co/functions/v1/isbn-lookup";
 const SAMPLES = [
@@ -192,6 +215,67 @@ async function run(isbn){
   finally{ $("go").disabled = false; }
 }
 $("f").addEventListener("submit", e=>{ e.preventDefault(); run($("isbn").value); });
+
+/* ---------- Barcode scanning (EAN-13 with 978/979 prefix = ISBN) ---------- */
+function isbnFromBarcode(text){
+  const d = String(text).replace(/\D/g,"");
+  if (!/^97[89]\d{10}$/.test(d)) return null;
+  let sum = 0; for (let k=0;k<13;k++) sum += +d[k]*(k%2?3:1);
+  return sum % 10 === 0 ? d : null;
+}
+let scanner = null, scanning = false;
+function formats(){
+  const F = window.Html5QrcodeSupportedFormats;
+  return F ? [F.EAN_13] : undefined;
+}
+function newReader(){
+  return new Html5Qrcode("reader", { formatsToSupport: formats(), verbose: false,
+    experimentalFeatures: { useBarCodeDetectorIfSupported: true } });
+}
+async function stopScan(){
+  if (scanner && scanning){ try{ await scanner.stop(); }catch{} }
+  scanning = false; $("scanPanel").hidden = true; $("scanBtn").disabled = false;
+}
+async function startScan(){
+  if (!window.Html5Qrcode){ $("status").textContent = "The scanner library did not load. Check your connection and reload."; return; }
+  $("scanPanel").hidden = false; $("scanBtn").disabled = true;
+  $("scanHint").textContent = "Starting camera…";
+  scanner = scanner || newReader();
+  let last = null;
+  try{
+    await scanner.start({ facingMode: "environment" },
+      { fps: 12, qrbox: (w,h)=>({ width: Math.floor(w*.78), height: Math.floor(h*.34) }), aspectRatio: 1.333 },
+      async (text)=>{
+        const isbn = isbnFromBarcode(text);
+        if (!isbn){ if (text !== last){ last = text; $("scanHint").textContent = `Read ${text}, which is not an ISBN. Try the barcode marked "ISBN".`; } return; }
+        if (navigator.vibrate) navigator.vibrate(60);
+        await stopScan(); run(isbn);
+      }, ()=>{});
+    scanning = true;
+    $("scanHint").textContent = "Hold the EAN barcode on the back cover inside the frame.";
+  }catch(e){
+    scanning = false; $("scanPanel").hidden = true; $("scanBtn").disabled = false;
+    const msg = String(e?.message || e);
+    $("status").textContent = /NotAllowed|Permission/i.test(msg)
+      ? "Camera access was denied. Allow the camera for this site in Safari settings, or use Scan from photo."
+      : `The camera could not start (${msg}). Use Scan from photo instead.`;
+  }
+}
+$("scanBtn").onclick = startScan;
+$("stopBtn").onclick = stopScan;
+$("photoBtn").onclick = ()=> $("photo").click();
+$("photo").addEventListener("change", async e=>{
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  if (!window.Html5Qrcode){ $("status").textContent = "The scanner library did not load. Check your connection and reload."; return; }
+  if (scanning) await stopScan();
+  $("status").textContent = "Reading barcode from photo…";
+  try{
+    const reader = scanner || (scanner = newReader());
+    const text = await reader.scanFile(f, false);
+    const isbn = isbnFromBarcode(text);
+    if (isbn) run(isbn); else $("status").textContent = `Found ${text}, which is not an ISBN.`;
+  }catch{ $("status").textContent = "No barcode found in the photo. Take it closer and keep the barcode sharp and level."; }
+});
 SAMPLES.forEach(([n,i,lang])=>{ const b=document.createElement("button"); b.type="button"; b.className="chip"; b.textContent=(lang?"EN · ":"")+n; b.title=i; b.onclick=()=>run(i); $("samples").append(b); });
 
 $("batch").onclick = async ()=>{
