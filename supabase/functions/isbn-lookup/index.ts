@@ -1,4 +1,4 @@
-// isbn-lookup: merges DNB (SRU, MARC21), Google Books and Open Library for one ISBN.
+// isbn-lookup: merges DNB and Library of Congress (SRU, MARC21), Google Books and Open Library for one ISBN.
 // GET /isbn-lookup?isbn=9783257228007  → JSON. Only ISBN digits are accepted, so this is not an open proxy.
 
 const CORS = {
@@ -89,24 +89,22 @@ function parseHeightCm(dims: string | undefined) {
   return m && /cm/.test(dims) ? +m[1].replace(",", ".") : null;
 }
 
-async function dnb(isbn13: string, isbn10: string | null) {
-  const url = `https://services.dnb.de/sru/dnb?version=1.1&operation=searchRetrieve&query=num%3D${isbn13}&recordSchema=MARC21-xml&maximumRecords=50`;
-  const r = await get(url, "application/xml");
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
-  const xml = await r.text();
-  const total = +(xml.match(/<numberOfRecords>(\d+)<\/numberOfRecords>/)?.[1] ?? 0);
-  const chunks = xml.split("<recordData>").slice(1);
+function parseMarcRecords(xml: string, isbn13: string, isbn10: string | null) {
+  const total = +(xml.match(/<(?:zs:)?numberOfRecords>(\d+)<\/(?:zs:)?numberOfRecords>/)?.[1] ?? 0);
+  const chunks = xml.split(/<(?:zs:)?recordData>/).slice(1);
   const records = chunks.map((rec) => {
     const isbns = subs(rec, "020", "a").map((s) => clean(s.split(" ")[0]));
     const extent = subs(rec, "300", "a")[0];
     const dims = subs(rec, "300", "c")[0];
-    const yearRaw = subs(rec, "264", "c")[0] ?? "";
-    const title = [subs(rec, "245", "a")[0], subs(rec, "245", "b")[0]].filter(Boolean).join(" : ");
+    // 264 (RDA) for newer records, 260 (AACR2) for older ones
+    const yearRaw = subs(rec, "264", "c")[0] ?? subs(rec, "260", "c")[0] ?? "";
+    // LC ends subfields with ISBD punctuation (" :", " /"); strip it, then join title and subtitle
+    const title = [subs(rec, "245", "a")[0], subs(rec, "245", "b")[0]].filter(Boolean).map((t) => t.replace(/\s*[/:;,.]\s*$/, "")).join(" : ");
     return {
       idn: control(rec, "001"),
       title,
-      author: subs(rec, "100", "a")[0] ?? null,
-      publisher: subs(rec, "264", "b")[0] ?? null,
+      author: subs(rec, "100", "a")[0]?.replace(/,\s*$/, "") ?? null,
+      publisher: (subs(rec, "264", "b")[0] ?? subs(rec, "260", "b")[0])?.replace(/,\s*$/, "") ?? null,
       year: +(yearRaw.match(/\d{4}/)?.[0] ?? 0) || null,
       edition: subs(rec, "250", "a")[0] ?? null,
       extent: extent ?? null,
@@ -119,12 +117,11 @@ async function dnb(isbn13: string, isbn10: string | null) {
   });
   const exact = records.filter((r) => r.exactIsbnMatch);
   const pool = exact.length ? exact : records;
-  const best = [...pool].sort((a, b) => (b.year ?? 0) - (a.year ?? 0))[0] ?? null;
-  // Height: newest record that has one (older reprints often keep the same format)
-  const heightFrom = [...pool].sort((a, b) => (b.year ?? 0) - (a.year ?? 0)).find((r) => r.heightCm);
+  const newest = [...pool].sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
+  const best = newest[0] ?? null;
+  const heightFrom = newest.find((r) => r.heightCm);
   const pageCounts = [...new Set(pool.map((r) => r.pages).filter(Boolean))];
   return {
-    url,
     totalRecords: total,
     returnedRecords: records.length,
     exactMatches: exact.length,
@@ -133,6 +130,23 @@ async function dnb(isbn13: string, isbn10: string | null) {
     best: best && { ...best, heightCm: best.heightCm ?? heightFrom?.heightCm ?? null },
     records,
   };
+}
+
+async function dnb(isbn13: string, isbn10: string | null) {
+  const url = `https://services.dnb.de/sru/dnb?version=1.1&operation=searchRetrieve&query=num%3D${isbn13}&recordSchema=MARC21-xml&maximumRecords=50`;
+  const r = await get(url, "application/xml");
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return { url, ...parseMarcRecords(await r.text(), isbn13, isbn10) };
+}
+
+// ---------- Library of Congress (SRU, MARCXML) — free, strongest for US/UK editions ----------
+async function loc(isbn13: string, isbn10: string | null) {
+  // LC records often carry only the ISBN-10, so query both forms.
+  const q = isbn10 ? `bath.isbn%3D${isbn13}%20or%20bath.isbn%3D${isbn10}` : `bath.isbn%3D${isbn13}`;
+  const url = `http://lx2.loc.gov:210/lcdb?version=1.1&operation=searchRetrieve&query=${q}&maximumRecords=25&recordSchema=marcxml`;
+  const r = await get(url, "application/xml");
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return { url, ...parseMarcRecords(await r.text(), isbn13, isbn10) };
 }
 
 // ---------- Google Books ----------
@@ -213,18 +227,19 @@ Deno.serve(async (req) => {
   }
   const isbn10 = to10(isbn13);
 
-  const [d, g, o, dc] = await Promise.all([
+  const [d, l, g, o, dc] = await Promise.all([
     timed(() => dnb(isbn13, isbn10)),
+    timed(() => loc(isbn13, isbn10)),
     timed(() => google(isbn13)),
     timed(() => openLibrary(isbn13)),
     timed(() => dnbCover(isbn13)),
   ]);
 
-  const db: any = d, gb: any = g, ol: any = o, cv: any = dc;
+  const db: any = d, lc: any = l, gb: any = g, ol: any = o, cv: any = dc;
   const summary = {
-    title: db.best?.title ?? gb.title ?? ol.title ?? null,
-    pages: { dnb: db.best?.pages ?? null, google: gb.pageCount ?? null, openLibrary: ol.numberOfPages ?? null },
-    heightCm: { dnb: db.best?.heightCm ?? null, google: gb.dimensions?.height ?? null, openLibrary: ol.physicalDimensions ?? null },
+    title: db.best?.title ?? lc.best?.title ?? gb.title ?? ol.title ?? null,
+    pages: { dnb: db.best?.pages ?? null, loc: lc.best?.pages ?? null, google: gb.pageCount ?? null, openLibrary: ol.numberOfPages ?? null },
+    heightCm: { dnb: db.best?.heightCm ?? null, loc: lc.best?.heightCm ?? null, google: gb.dimensions?.height ?? null, openLibrary: ol.physicalDimensions ?? null },
     cover: { google: gb.coverUrl ?? null, openLibrary: ol.coverUrl ?? null, dnbMvb: cv.available ? cv.url : null },
   };
 
@@ -234,6 +249,6 @@ Deno.serve(async (req) => {
     checksumValid: valid13(isbn13),
     fetchedAt: new Date().toISOString(),
     summary,
-    sources: { dnb: d, google: g, openLibrary: o, dnbCover: dc },
+    sources: { dnb: d, loc: l, google: g, openLibrary: o, dnbCover: dc },
   });
 });

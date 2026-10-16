@@ -65,7 +65,7 @@ pre{margin:8px 0 0;font:12px/1.45 var(--f-mono);background:var(--bg);border:1px 
 <div class="wrap">
   <header>
     <h1>Spine Lab · ISBN Test</h1>
-    <p class="sub">Look up one ISBN in the DNB, Google Books and Open Library and see which source has pages, height and a cover.</p>
+    <p class="sub">Look up one ISBN in the DNB, the Library of Congress, Google Books and Open Library and see which source has pages, height and a cover.</p>
   </header>
 
   <form id="f">
@@ -82,7 +82,7 @@ pre{margin:8px 0 0;font:12px/1.45 var(--f-mono);background:var(--bg);border:1px 
     <h2>Batch test</h2>
     <div class="batchbar">
       <button id="batch">Run all test ISBNs</button>
-      <span class="meta" id="batchStatus">9 German editions, one request each</span>
+      <span class="meta" id="batchStatus">9 German and 5 English editions, one request each</span>
     </div>
     <div class="scroll" id="batchOut"></div>
   </section>
@@ -95,7 +95,9 @@ const ENDPOINT = "https://itzvyiwotjxywkpesznj.supabase.co/functions/v1/isbn-loo
 const SAMPLES = [
   ["Verwandlung","9783150099001"],["Faust I","9783150000014"],["Parfum","9783257228007"],
   ["Zauberberg","9783596294336"],["Vermessung","9783499241000"],["Als wir träumten","9783100486004"],
-  ["Herkunft","9783630874739"],["Unterleuten","9783630874876"],["Emil","9783791530123"]
+  ["Herkunft","9783630874739"],["Unterleuten","9783630874876"],["Emil","9783791530123"],
+  ["Pride and Prejudice","9780141439518","en"],["Project Hail Mary","9780593135204","en"],["The Road","9780307387899","en"],
+  ["Normal People","9780571334650","en"],["Sapiens","9780062316097","en"]
 ];
 const $ = id => document.getElementById(id);
 $("ep").textContent = ENDPOINT;
@@ -131,14 +133,15 @@ function sampleColor(url){
 function lum(hex){const n=parseInt(hex.slice(1),16);const f=v=>{v/=255;return v<=.03928?v/12.92:((v+.055)/1.055)**2.4};return .2126*f(n>>16&255)+.7152*f(n>>8&255)+.0722*f(n&255);}
 
 async function render(j){
-  const s = j.summary, src = j.sources, d = src.dnb || {}, g = src.google || {}, o = src.openLibrary || {}, dc = src.dnbCover || {};
+  const s = j.summary, src = j.sources, d = src.dnb || {}, l = src.loc || {}, g = src.google || {}, o = src.openLibrary || {}, dc = src.dnbCover || {};
   const rows = [
     ["DNB", srcState(d), s.pages.dnb, s.heightCm.dnb ? s.heightCm.dnb + " cm" : null, d.best?.dimensions, d.ok ? `${d.exactMatches} exact / ${d.looseMatches} loose of ${d.totalRecords}` : null],
+    ["Library of Congress", srcState(l), s.pages.loc, s.heightCm.loc ? s.heightCm.loc + " cm" : null, l.best?.dimensions, l.ok ? `${l.exactMatches} exact / ${l.looseMatches} loose of ${l.totalRecords}` : null],
     ["Google Books", srcState(g), s.pages.google, s.heightCm.google, null, g.ok ? `${g.totalItems ?? 0} items` : null],
     ["Open Library", srcState(o), s.pages.openLibrary, null, o.physicalDimensions, o.found ? o.physicalFormat : null],
   ];
-  const pages = s.pages.dnb ?? s.pages.openLibrary ?? s.pages.google;
-  const heightMm = (s.heightCm.dnb ?? 19) * 10;
+  const pages = s.pages.dnb ?? s.pages.loc ?? s.pages.openLibrary ?? s.pages.google;
+  const heightCm = s.heightCm.dnb ?? s.heightCm.loc; const heightMm = (heightCm ?? 19) * 10;
   const thickMm = pages ? +(pages * .055 + 1).toFixed(1) : null;
   const coverForColor = s.cover.openLibrary || s.cover.google;
   const covers = [["Google Books", s.cover.google],["Open Library", s.cover.openLibrary],["DNB / MVB (restricted)", s.cover.dnbMvb]];
@@ -164,13 +167,13 @@ async function render(j){
     <h2>Generated spine</h2>
     <div class="spinebox">
       <div><div class="spine" id="spine" style="width:${(thickMm||20)*1.6}px;height:${heightMm*1.6}px"><span>${esc((s.title||"").split(" : ")[0])}</span></div><div class="plank"></div></div>
-      <p class="meta">${thickMm ? `${pages} pages × 0.055 mm + 1 mm = ${thickMm} mm thick` : "No page count, using 20 mm"}<br>${s.heightCm.dnb ? `${heightMm} mm tall (DNB)` : "No DNB height, using 190 mm"}<br><span id="colorNote">Color: sampling cover…</span></p>
+      <p class="meta">${thickMm ? `${pages} pages × 0.055 mm + 1 mm = ${thickMm} mm thick` : "No page count, using 20 mm"}<br>${heightCm ? `${heightMm} mm tall (${s.heightCm.dnb ? "DNB" : "Library of Congress"})` : "No catalogue height, using 190 mm"}<br><span id="colorNote">Color: sampling cover…</span></p>
     </div>
   </section>
 
   <section class="panel">
     <h2>Raw data</h2>
-    ${d.records?.length ? `<details><summary>DNB records (${d.records.length})</summary><div class="scroll"><table><thead><tr><th>Year</th><th>Pages</th><th>Format</th><th>Publisher</th><th>Exact</th></tr></thead><tbody>${d.records.map(r=>`<tr><td class="v">${val(r.year)}</td><td class="v">${val(r.extent)}</td><td class="v">${val(r.dimensions)}</td><td>${val(r.publisher)}</td><td>${r.exactIsbnMatch?'<span class="ok">yes</span>':'<span class="warn">no</span>'}</td></tr>`).join("")}</tbody></table></div></details>` : ""}
+    ${[["DNB",d],["Library of Congress",l]].filter(([,x])=>x.records?.length).map(([n,x])=>`<details><summary>${n} records (${x.records.length})</summary><div class="scroll"><table><thead><tr><th>Year</th><th>Pages</th><th>Format</th><th>Publisher</th><th>Exact</th></tr></thead><tbody>${x.records.map(r=>`<tr><td class="v">${val(r.year)}</td><td class="v">${val(r.extent)}</td><td class="v">${val(r.dimensions)}</td><td>${val(r.publisher)}</td><td>${r.exactIsbnMatch?'<span class="ok">yes</span>':'<span class="warn">no</span>'}</td></tr>`).join("")}</tbody></table></div></details>`).join("")}
     <details><summary>Full JSON</summary><pre>${esc(JSON.stringify(j, null, 2))}</pre></details>
   </section>`;
   $("out").hidden = false;
@@ -189,7 +192,7 @@ async function run(isbn){
   finally{ $("go").disabled = false; }
 }
 $("f").addEventListener("submit", e=>{ e.preventDefault(); run($("isbn").value); });
-SAMPLES.forEach(([n,i])=>{ const b=document.createElement("button"); b.type="button"; b.className="chip"; b.textContent=n; b.title=i; b.onclick=()=>run(i); $("samples").append(b); });
+SAMPLES.forEach(([n,i,lang])=>{ const b=document.createElement("button"); b.type="button"; b.className="chip"; b.textContent=(lang?"EN · ":"")+n; b.title=i; b.onclick=()=>run(i); $("samples").append(b); });
 
 $("batch").onclick = async ()=>{
   $("batch").disabled = true; const rows = [];
@@ -198,7 +201,7 @@ $("batch").onclick = async ()=>{
     try{ const j = await lookup(i); rows.push([n,j]); } catch(e){ rows.push([n,{error:e.message}]); }
   }
   const has = (j,f)=>{ try{ return f(j) != null && f(j) !== ""; }catch{ return false; } };
-  const checks = [["DNB pages",j=>j.summary.pages.dnb],["DNB height",j=>j.summary.heightCm.dnb],["Google pages",j=>j.summary.pages.google],["Google cover",j=>j.summary.cover.google],["OL pages",j=>j.summary.pages.openLibrary],["OL dims",j=>j.sources.openLibrary.physicalDimensions],["OL cover",j=>j.summary.cover.openLibrary],["MVB cover",j=>j.summary.cover.dnbMvb]];
+  const checks = [["DNB pages",j=>j.summary.pages.dnb],["DNB height",j=>j.summary.heightCm.dnb],["LoC pages",j=>j.summary.pages.loc],["LoC height",j=>j.summary.heightCm.loc],["Google pages",j=>j.summary.pages.google],["Google cover",j=>j.summary.cover.google],["OL pages",j=>j.summary.pages.openLibrary],["OL dims",j=>j.sources.openLibrary.physicalDimensions],["OL cover",j=>j.summary.cover.openLibrary],["MVB cover",j=>j.summary.cover.dnbMvb]];
   const mark = b => b ? '<span class="ok">●</span>' : '<span class="dim">○</span>';
   $("batchOut").innerHTML = `<table><thead><tr><th>Book</th>${checks.map(c=>`<th>${c[0]}</th>`).join("")}</tr></thead><tbody>
     ${rows.map(([n,j])=>`<tr><td>${esc(n)}</td>${checks.map(c=>`<td>${mark(has(j,c[1]))}</td>`).join("")}</tr>`).join("")}

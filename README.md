@@ -7,16 +7,17 @@ Data tests for a bookshelf app that draws real book spines at real size.
 `index.html` is a single-page tester, served by GitHub Pages at
 https://mhaack.github.io/spine-lab/. Enter an ISBN (or tap a sample) to compare
 what each source returns: pages, height, dimensions and cover. "Run all test
-ISBNs" checks nine German editions and shows a hit rate per field.
+ISBNs" checks nine German and five English editions and shows a hit rate per field.
 
 ## `isbn-lookup` Edge Function
 
-`supabase/functions/isbn-lookup/index.ts` runs on Supabase and merges four
+`supabase/functions/isbn-lookup/index.ts` runs on Supabase and merges five
 sources for one ISBN:
 
 | Source | Used for |
 |---|---|
-| DNB SRU (MARC21-xml) | Pages (`300 $a`), height in cm (`300 $c`), editions |
+| DNB SRU (MARC21-xml) | German editions: pages (`300 $a`), height in cm (`300 $c`), editions |
+| Library of Congress SRU (MARCXML) | English editions: same MARC fields as the DNB |
 | Google Books | Page count, dimensions, cover |
 | Open Library | Page count, physical dimensions, cover |
 | DNB / MVB cover service | Cover availability check only (display rights restricted) |
@@ -42,3 +43,6 @@ Set a key as a function secret:
 ```sh
 supabase secrets set GOOGLE_BOOKS_KEY=... --project-ref itzvyiwotjxywkpesznj
 ```
+
+WorldCat is not included: OCLC only issues API keys to member libraries and
+people working on their behalf.
