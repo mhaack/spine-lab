@@ -1,0 +1,5 @@
+project_id = "itzvyiwotjxywkpesznj"
+
+[functions.isbn-lookup]
+# Public test endpoint: no login required. It only accepts ISBN digits.
+verify_jwt = false
