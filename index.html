@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Spine Lab ISBN Test</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one column — ISBN input, per-source comparison, covers + spine preview, raw records. */
+:root{
+  --bg:#E4E8E6; --panel:#F2F4F3; --fg:#1C2220; --muted:#5A6561; --line:#C6CECA; --accent:#2F4FA2;
+  --ok:#2E7D4F; --warn:#B07A12; --bad:#B8392C;
+  --f-display:"Barlow Condensed","Arial Narrow",sans-serif; --f-body:"IBM Plex Sans",system-ui,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#131716; --panel:#1B201F; --fg:#E6EBE9; --muted:#93A09B; --line:#2D3533; --accent:#93A9F2;
+  --ok:#6CC08F; --warn:#E0B04A; --bad:#EE7B6E; color-scheme:dark}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 var(--f-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-top:max(20px,env(safe-area-inset-top,0px));padding-bottom:max(40px,env(safe-area-inset-bottom,0px))}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+h1{font:800 clamp(30px,8vw,42px)/1 var(--f-display);text-transform:uppercase;letter-spacing:.02em;margin:0}
+.sub{color:var(--muted);margin:4px 0 0}
+form{display:flex;gap:8px}
+input{flex:1;min-width:0;font:17px var(--f-mono);color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:11px 12px}
+button{font:600 15px var(--f-body);border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:8px;padding:10px 14px;cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+button:disabled{opacity:.5}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font:12px var(--f-mono);padding:4px 9px;border-radius:20px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel h2{font:600 12px var(--f-body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0}
+.title{font:600 18px/1.3 var(--f-body);margin:0;text-wrap:balance}
+.meta{font:13px var(--f-mono);color:var(--muted);margin:0;overflow-wrap:anywhere}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:600 12px var(--f-body);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+td.v{font-family:var(--f-mono);font-size:13px}
+.pill{display:inline-block;font:600 11px var(--f-body);text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:20px;border:1px solid currentColor}
+.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}.dim{color:var(--muted)}
+.covers{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end}
+figure{margin:0;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+figure img{height:150px;width:auto;max-width:110px;object-fit:contain;border:1px solid var(--line);border-radius:3px;background:var(--bg)}
+figcaption{font:12px var(--f-mono);color:var(--muted)}
+.nocover{height:150px;width:100px;display:grid;place-items:center;border:1px dashed var(--line);border-radius:3px;font:12px var(--f-mono);color:var(--muted);text-align:center;padding:6px}
+.spinebox{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap}
+.spine{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:2px 2px 0 0;
+  background:linear-gradient(90deg,rgba(0,0,0,.25),rgba(255,255,255,.12) 30%,rgba(255,255,255,.03) 60%,rgba(0,0,0,.22)),var(--c,#5E6B8C);color:var(--ink,#F6F3EC)}
+.spine span{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;font:600 13px var(--f-display);text-transform:uppercase;letter-spacing:.04em}
+.plank{height:10px;background:linear-gradient(180deg,#A87A52,#6B4429);border-radius:2px}
+details{border-top:1px solid var(--line);padding-top:10px}
+summary{cursor:pointer;font-weight:600;font-size:14px}
+pre{margin:8px 0 0;font:12px/1.45 var(--f-mono);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;max-height:340px}
+.status{font:13px var(--f-mono);color:var(--muted);min-height:1.5em;margin:0}
+.batchbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Spine Lab · ISBN Test</h1>
+    <p class="sub">Look up one ISBN in the DNB, Google Books and Open Library and see which source has pages, height and a cover.</p>
+  </header>
+
+  <form id="f">
+    <label for="isbn" class="sr" hidden>ISBN</label>
+    <input id="isbn" inputmode="numeric" autocomplete="off" placeholder="ISBN, e.g. 978-3-257-22800-7" aria-label="ISBN">
+    <button class="primary" id="go">Look up</button>
+  </form>
+  <div class="chips" id="samples" aria-label="Test ISBNs"></div>
+  <p class="status" id="status" role="status"></p>
+
+  <div id="out" hidden></div>
+
+  <section class="panel">
+    <h2>Batch test</h2>
+    <div class="batchbar">
+      <button id="batch">Run all test ISBNs</button>
+      <span class="meta" id="batchStatus">9 German editions, one request each</span>
+    </div>
+    <div class="scroll" id="batchOut"></div>
+  </section>
+
+  <p class="meta">Endpoint: <span id="ep"></span></p>
+</div>
+
+<script>
+const ENDPOINT = "https://itzvyiwotjxywkpesznj.supabase.co/functions/v1/isbn-lookup";
+const SAMPLES = [
+  ["Verwandlung","9783150099001"],["Faust I","9783150000014"],["Parfum","9783257228007"],
+  ["Zauberberg","9783596294336"],["Vermessung","9783499241000"],["Als wir träumten","9783100486004"],
+  ["Herkunft","9783630874739"],["Unterleuten","9783630874876"],["Emil","9783791530123"]
+];
+const $ = id => document.getElementById(id);
+$("ep").textContent = ENDPOINT;
+
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const val = v => v == null || v === "" ? '<span class="dim">–</span>' : esc(typeof v === "object" ? JSON.stringify(v) : v);
+const srcState = s => !s ? ['bad','missing'] : !s.ok ? ['bad', s.error || 'error'] : s.found === false ? ['warn','not found'] : ['ok', `${s.ms} ms`];
+
+async function lookup(isbn){
+  const r = await fetch(`${ENDPOINT}?isbn=${encodeURIComponent(isbn)}`);
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || `HTTP ${r.status}`);
+  return j;
+}
+
+/* Spine color from a cover, when the image host allows canvas reads */
+function sampleColor(url){
+  return new Promise(res=>{
+    if(!url) return res(null);
+    const img = new Image(); img.crossOrigin = "anonymous";
+    img.onload = ()=>{ try{
+      const c=document.createElement("canvas");c.width=c.height=40;const x=c.getContext("2d");x.drawImage(img,0,0,40,40);
+      const d=x.getImageData(0,0,40,40).data;const b=new Map();
+      for(let i=0;i<d.length;i+=4){const r=d[i],g=d[i+1],bl=d[i+2],mx=Math.max(r,g,bl),mn=Math.min(r,g,bl),s=mx?(mx-mn)/mx:0;
+        let w=1+s*3;if(mx>245&&s<.08)w*=.3;if(mx<18)w*=.3;const k=(r>>5)<<6|(g>>5)<<3|(bl>>5);
+        const o=b.get(k)||{w:0,r:0,g:0,b:0,n:0};o.w+=w;o.r+=r;o.g+=g;o.b+=bl;o.n++;b.set(k,o);}
+      let best=null;for(const o of b.values())if(!best||o.w>best.w)best=o;
+      const h=v=>Math.round(v/best.n).toString(16).padStart(2,"0");res("#"+h(best.r)+h(best.g)+h(best.b));
+    }catch{res(null)} };
+    img.onerror = ()=>res(null); img.src = url;
+  });
+}
+function lum(hex){const n=parseInt(hex.slice(1),16);const f=v=>{v/=255;return v<=.03928?v/12.92:((v+.055)/1.055)**2.4};return .2126*f(n>>16&255)+.7152*f(n>>8&255)+.0722*f(n&255);}
+
+async function render(j){
+  const s = j.summary, src = j.sources, d = src.dnb || {}, g = src.google || {}, o = src.openLibrary || {}, dc = src.dnbCover || {};
+  const rows = [
+    ["DNB", srcState(d), s.pages.dnb, s.heightCm.dnb ? s.heightCm.dnb + " cm" : null, d.best?.dimensions, d.ok ? `${d.exactMatches} exact / ${d.looseMatches} loose of ${d.totalRecords}` : null],
+    ["Google Books", srcState(g), s.pages.google, s.heightCm.google, null, g.ok ? `${g.totalItems ?? 0} items` : null],
+    ["Open Library", srcState(o), s.pages.openLibrary, null, o.physicalDimensions, o.found ? o.physicalFormat : null],
+  ];
+  const pages = s.pages.dnb ?? s.pages.openLibrary ?? s.pages.google;
+  const heightMm = (s.heightCm.dnb ?? 19) * 10;
+  const thickMm = pages ? +(pages * .055 + 1).toFixed(1) : null;
+  const coverForColor = s.cover.openLibrary || s.cover.google;
+  const covers = [["Google Books", s.cover.google],["Open Library", s.cover.openLibrary],["DNB / MVB (restricted)", s.cover.dnbMvb]];
+
+  $("out").innerHTML = `
+  <section class="panel">
+    <h2>Result</h2>
+    <p class="title">${esc(s.title) || '<span class="dim">No title found</span>'}</p>
+    <p class="meta">ISBN-13 ${esc(j.isbn13)} · ISBN-10 ${esc(j.isbn10 ?? "–")} · checksum ${j.checksumValid ? '<span class="ok">valid</span>' : '<span class="bad">invalid</span>'}</p>
+    <div class="scroll"><table>
+      <thead><tr><th>Source</th><th>Status</th><th>Pages</th><th>Height</th><th>Dimensions</th><th>Matches</th></tr></thead>
+      <tbody>${rows.map(([n,[cls,msg],p,h,dim,m])=>`<tr><td>${n}</td><td><span class="pill ${cls}">${esc(msg)}</span></td><td class="v">${val(p)}</td><td class="v">${val(h)}</td><td class="v">${val(dim)}</td><td class="v">${val(m)}</td></tr>`).join("")}</tbody>
+    </table></div>
+    ${d.distinctPageCounts?.length > 1 ? `<p class="meta warn">DNB lists different page counts for this ISBN: ${d.distinctPageCounts.join(", ")}. Using the newest record.</p>` : ""}
+  </section>
+
+  <section class="panel">
+    <h2>Covers</h2>
+    <div class="covers">${covers.map(([n,u])=>`<figure>${u?`<img src="${esc(u)}" alt="Cover from ${esc(n)}" loading="lazy">`:`<div class="nocover">no cover</div>`}<figcaption>${esc(n)}</figcaption></figure>`).join("")}</div>
+  </section>
+
+  <section class="panel">
+    <h2>Generated spine</h2>
+    <div class="spinebox">
+      <div><div class="spine" id="spine" style="width:${(thickMm||20)*1.6}px;height:${heightMm*1.6}px"><span>${esc((s.title||"").split(" : ")[0])}</span></div><div class="plank"></div></div>
+      <p class="meta">${thickMm ? `${pages} pages × 0.055 mm + 1 mm = ${thickMm} mm thick` : "No page count, using 20 mm"}<br>${s.heightCm.dnb ? `${heightMm} mm tall (DNB)` : "No DNB height, using 190 mm"}<br><span id="colorNote">Color: sampling cover…</span></p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Raw data</h2>
+    ${d.records?.length ? `<details><summary>DNB records (${d.records.length})</summary><div class="scroll"><table><thead><tr><th>Year</th><th>Pages</th><th>Format</th><th>Publisher</th><th>Exact</th></tr></thead><tbody>${d.records.map(r=>`<tr><td class="v">${val(r.year)}</td><td class="v">${val(r.extent)}</td><td class="v">${val(r.dimensions)}</td><td>${val(r.publisher)}</td><td>${r.exactIsbnMatch?'<span class="ok">yes</span>':'<span class="warn">no</span>'}</td></tr>`).join("")}</tbody></table></div></details>` : ""}
+    <details><summary>Full JSON</summary><pre>${esc(JSON.stringify(j, null, 2))}</pre></details>
+  </section>`;
+  $("out").hidden = false;
+
+  const color = await sampleColor(coverForColor);
+  const sp = $("spine");
+  if (color && sp){ sp.style.setProperty("--c", color); sp.style.setProperty("--ink", lum(color) > .36 ? "#1B1B1A" : "#F6F3EC"); $("colorNote").textContent = `Color ${color} sampled from cover`; }
+  else if ($("colorNote")) $("colorNote").textContent = "Color: cover host blocks sampling in the browser";
+}
+
+async function run(isbn){
+  isbn = isbn.trim(); if(!isbn) return;
+  $("isbn").value = isbn; $("go").disabled = true; $("status").textContent = "Looking up…";
+  try{ const t=performance.now(); const j = await lookup(isbn); await render(j); $("status").textContent = `Done in ${Math.round(performance.now()-t)} ms`; }
+  catch(e){ $("status").textContent = `Lookup failed: ${e.message}. Check the ISBN and try again.`; }
+  finally{ $("go").disabled = false; }
+}
+$("f").addEventListener("submit", e=>{ e.preventDefault(); run($("isbn").value); });
+SAMPLES.forEach(([n,i])=>{ const b=document.createElement("button"); b.type="button"; b.className="chip"; b.textContent=n; b.title=i; b.onclick=()=>run(i); $("samples").append(b); });
+
+$("batch").onclick = async ()=>{
+  $("batch").disabled = true; const rows = [];
+  for (const [n,i] of SAMPLES){
+    $("batchStatus").textContent = `Checking ${n}…`;
+    try{ const j = await lookup(i); rows.push([n,j]); } catch(e){ rows.push([n,{error:e.message}]); }
+  }
+  const has = (j,f)=>{ try{ return f(j) != null && f(j) !== ""; }catch{ return false; } };
+  const checks = [["DNB pages",j=>j.summary.pages.dnb],["DNB height",j=>j.summary.heightCm.dnb],["Google pages",j=>j.summary.pages.google],["Google cover",j=>j.summary.cover.google],["OL pages",j=>j.summary.pages.openLibrary],["OL dims",j=>j.sources.openLibrary.physicalDimensions],["OL cover",j=>j.summary.cover.openLibrary],["MVB cover",j=>j.summary.cover.dnbMvb]];
+  const mark = b => b ? '<span class="ok">●</span>' : '<span class="dim">○</span>';
+  $("batchOut").innerHTML = `<table><thead><tr><th>Book</th>${checks.map(c=>`<th>${c[0]}</th>`).join("")}</tr></thead><tbody>
+    ${rows.map(([n,j])=>`<tr><td>${esc(n)}</td>${checks.map(c=>`<td>${mark(has(j,c[1]))}</td>`).join("")}</tr>`).join("")}
+    <tr><th>Hit rate</th>${checks.map(c=>`<th>${rows.filter(([,j])=>has(j,c[1])).length}/${rows.length}</th>`).join("")}</tr></tbody></table>`;
+  $("batchStatus").textContent = "Done"; $("batch").disabled = false;
+};
+</script>
+</body>
+</html>
