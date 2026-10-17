@@ -153,8 +153,18 @@ async function loc(isbn13: string, isbn10: string | null) {
 async function google(isbn13: string) {
   const key = Deno.env.get("GOOGLE_BOOKS_KEY");
   const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn13}${key ? `&key=${key}` : ""}`;
-  const r = await get(url);
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  let r = await get(url);
+  // 503 backendError is often transient: retry once after a short pause
+  if (r.status === 503) { await r.body?.cancel(); await new Promise((res) => setTimeout(res, 600)); r = await get(url); }
+  if (!r.ok) {
+    let reason = "";
+    try {
+      const body = await r.json();
+      reason = [body?.error?.status, body?.error?.errors?.[0]?.reason, body?.error?.message].filter(Boolean).join(" · ");
+    } catch { /* non-JSON error body */ }
+    console.error(`google_books ${r.status} keySet=${Boolean(key)} ${reason}`);
+    throw new Error(`HTTP ${r.status}${reason ? `: ${reason}` : ""}`);
+  }
   const data = await r.json();
   const item = data.items?.[0];
   if (!item) return { totalItems: data.totalItems ?? 0, found: false };
