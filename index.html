@@ -76,7 +76,7 @@ pre{margin:8px 0 0;font:12px/1.45 var(--f-mono);background:var(--bg);border:1px 
 <div class="wrap">
   <header>
     <h1>Spine Lab · ISBN Test</h1>
-    <p class="sub">Scan or type an ISBN. The page looks it up in the DNB, the Library of Congress, Google Books and Open Library and shows which source has pages, height and a cover.</p>
+    <p class="sub">Scan or type an ISBN. The page looks it up in the DNB, the Library of Congress and Open Library and shows which source has pages, height and a cover.</p>
   </header>
 
   <form id="f">
@@ -129,45 +129,10 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;
 const val = v => v == null || v === "" ? '<span class="dim">–</span>' : esc(typeof v === "object" ? JSON.stringify(v) : v);
 const srcState = s => !s ? ['bad','missing'] : !s.ok ? ['bad', s.error || 'error'] : s.found === false ? ['warn','not found'] : ['ok', `${s.ms} ms`];
 
-/* Google Books refuses requests from Supabase's servers (503 backendFailed),
-   so the page asks Google directly from the browser. No API key needed at this volume. */
-async function googleBooks(isbn13){
-  const t = performance.now();
-  try{
-    const r = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn13}`);
-    if (!r.ok){
-      let reason = ""; try{ const b = await r.json(); reason = b?.error?.message || ""; }catch{}
-      return { ok:false, ms:Math.round(performance.now()-t), via:"browser", error:`HTTP ${r.status}${reason?`: ${reason}`:""}` };
-    }
-    const data = await r.json(); const item = data.items?.[0];
-    if (!item) return { ok:true, ms:Math.round(performance.now()-t), via:"browser", totalItems:data.totalItems ?? 0, found:false };
-    let detail = null;
-    try{ const d = await fetch(item.selfLink); if (d.ok) detail = await d.json(); }catch{}
-    const v = { ...item.volumeInfo, ...(detail?.volumeInfo ?? {}) }, img = v.imageLinks ?? {};
-    const cover = img.medium ?? img.small ?? img.thumbnail ?? img.smallThumbnail ?? null;
-    return { ok:true, ms:Math.round(performance.now()-t), via:"browser", totalItems:data.totalItems, found:true, id:item.id,
-      title:[v.title, v.subtitle].filter(Boolean).join(" : "), authors:v.authors ?? [], publisher:v.publisher ?? null,
-      publishedDate:v.publishedDate ?? null, pageCount:v.pageCount ?? null, printedPageCount:v.printedPageCount ?? null,
-      dimensions:v.dimensions ?? null, language:v.language ?? null, imageLinkKeys:Object.keys(img),
-      coverUrl: cover ? cover.replace(/^http:/,"https:").replace("&edge=curl","") : null };
-  }catch(e){ return { ok:false, ms:Math.round(performance.now()-t), via:"browser", error:String(e?.message||e) }; }
-}
-
 async function lookup(isbn){
-  const [r, g0] = await Promise.all([
-    fetch(`${ENDPOINT}?isbn=${encodeURIComponent(isbn)}`),
-    (async()=>{ const d=String(isbn).replace(/[^0-9Xx]/g,""); return d.length===13 ? googleBooks(d) : null; })()
-  ]);
+  const r = await fetch(`${ENDPOINT}?isbn=${encodeURIComponent(isbn)}`);
   const j = await r.json();
   if (!r.ok) throw new Error(j.error || `HTTP ${r.status}`);
-  const g = g0 ?? await googleBooks(j.isbn13);
-  // Prefer the browser result; keep the server attempt for comparison.
-  j.sources.googleServer = j.sources.google;
-  j.sources.google = g;
-  j.summary.pages.google = g.pageCount ?? null;
-  j.summary.heightCm.google = g.dimensions?.height ?? null;
-  j.summary.cover.google = g.coverUrl ?? null;
-  if (!j.summary.title && g.title) j.summary.title = g.title;
   return j;
 }
 
@@ -191,18 +156,17 @@ function sampleColor(url){
 function lum(hex){const n=parseInt(hex.slice(1),16);const f=v=>{v/=255;return v<=.03928?v/12.92:((v+.055)/1.055)**2.4};return .2126*f(n>>16&255)+.7152*f(n>>8&255)+.0722*f(n&255);}
 
 async function render(j){
-  const s = j.summary, src = j.sources, d = src.dnb || {}, l = src.loc || {}, g = src.google || {}, o = src.openLibrary || {}, dc = src.dnbCover || {};
+  const s = j.summary, src = j.sources, d = src.dnb || {}, l = src.loc || {}, o = src.openLibrary || {}, dc = src.dnbCover || {};
   const rows = [
     ["DNB", srcState(d), s.pages.dnb, s.heightCm.dnb ? s.heightCm.dnb + " cm" : null, d.best?.dimensions, d.ok ? `${d.exactMatches} exact / ${d.looseMatches} loose of ${d.totalRecords}` : null],
     ["Library of Congress", srcState(l), s.pages.loc, s.heightCm.loc ? s.heightCm.loc + " cm" : null, l.best?.dimensions, l.ok ? `${l.exactMatches} exact / ${l.looseMatches} loose of ${l.totalRecords}` : null],
-    ["Google Books", srcState(g), s.pages.google, s.heightCm.google, null, g.ok ? `${g.totalItems ?? 0} items` : null],
     ["Open Library", srcState(o), s.pages.openLibrary, null, o.physicalDimensions, o.found ? o.physicalFormat : null],
   ];
-  const pages = s.pages.dnb ?? s.pages.loc ?? s.pages.openLibrary ?? s.pages.google;
+  const pages = s.pages.dnb ?? s.pages.loc ?? s.pages.openLibrary;
   const heightCm = s.heightCm.dnb ?? s.heightCm.loc; const heightMm = (heightCm ?? 19) * 10;
   const thickMm = pages ? +(pages * .055 + 1).toFixed(1) : null;
-  const coverForColor = s.cover.openLibrary || s.cover.google;
-  const covers = [["Google Books", s.cover.google],["Open Library", s.cover.openLibrary],["DNB / MVB (restricted)", s.cover.dnbMvb]];
+  const coverForColor = s.cover.openLibrary;
+  const covers = [["Open Library", s.cover.openLibrary],["DNB / MVB (restricted)", s.cover.dnbMvb]];
 
   $("out").innerHTML = `
   <section class="panel">
@@ -320,7 +284,7 @@ $("batch").onclick = async ()=>{
     try{ const j = await lookup(i); rows.push([n,j]); } catch(e){ rows.push([n,{error:e.message}]); }
   }
   const has = (j,f)=>{ try{ return f(j) != null && f(j) !== ""; }catch{ return false; } };
-  const checks = [["DNB pages",j=>j.summary.pages.dnb],["DNB height",j=>j.summary.heightCm.dnb],["LoC pages",j=>j.summary.pages.loc],["LoC height",j=>j.summary.heightCm.loc],["Google pages",j=>j.summary.pages.google],["Google cover",j=>j.summary.cover.google],["OL pages",j=>j.summary.pages.openLibrary],["OL dims",j=>j.sources.openLibrary.physicalDimensions],["OL cover",j=>j.summary.cover.openLibrary],["MVB cover",j=>j.summary.cover.dnbMvb]];
+  const checks = [["DNB pages",j=>j.summary.pages.dnb],["DNB height",j=>j.summary.heightCm.dnb],["LoC pages",j=>j.summary.pages.loc],["LoC height",j=>j.summary.heightCm.loc],["OL pages",j=>j.summary.pages.openLibrary],["OL dims",j=>j.sources.openLibrary.physicalDimensions],["OL cover",j=>j.summary.cover.openLibrary],["MVB cover",j=>j.summary.cover.dnbMvb]];
   const mark = b => b ? '<span class="ok">●</span>' : '<span class="dim">○</span>';
   $("batchOut").innerHTML = `<table><thead><tr><th>Book</th>${checks.map(c=>`<th>${c[0]}</th>`).join("")}</tr></thead><tbody>
     ${rows.map(([n,j])=>`<tr><td>${esc(n)}</td>${checks.map(c=>`<td>${mark(has(j,c[1]))}</td>`).join("")}</tr>`).join("")}

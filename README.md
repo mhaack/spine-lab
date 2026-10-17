@@ -11,14 +11,13 @@ ISBNs" checks nine German and five English editions and shows a hit rate per fie
 
 ## `isbn-lookup` Edge Function
 
-`supabase/functions/isbn-lookup/index.ts` runs on Supabase and merges five
+`supabase/functions/isbn-lookup/index.ts` runs on Supabase and merges four
 sources for one ISBN:
 
 | Source | Used for |
 |---|---|
 | DNB SRU (MARC21-xml) | German editions: pages (`300 $a`), height in cm (`300 $c`), editions |
 | Library of Congress SRU (MARCXML) | English editions: same MARC fields as the DNB |
-| Google Books | Page count, dimensions, cover |
 | Open Library | Page count, physical dimensions, cover |
 | DNB / MVB cover service | Cover availability check only (display rights restricted) |
 
@@ -35,13 +34,8 @@ including every DNB record). Accepts 10- or 13-digit ISBNs, with or without hyph
 supabase functions deploy isbn-lookup --project-ref itzvyiwotjxywkpesznj
 ```
 
-### Google Books
-
-Google Books answers requests from Supabase's servers with
-`503 backendFailed`, with or without an API key. The tester page therefore calls
-Google Books directly from the browser (no key needed) and shows that result.
-The server's attempt stays in the JSON as `sources.googleServer` for comparison.
-For the iOS app this means: call Google Books from the device, not the backend.
+Google Books was tried and removed: it rejects requests from Supabase's servers
+(`503 backendFailed`) and its free quota ran out quickly when called from the browser.
 
 WorldCat is not included: OCLC only issues API keys to member libraries and
 people working on their behalf.

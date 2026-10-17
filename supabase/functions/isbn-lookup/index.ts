@@ -1,4 +1,4 @@
-// isbn-lookup: merges DNB and Library of Congress (SRU, MARC21), Google Books and Open Library for one ISBN.
+// isbn-lookup: merges DNB and Library of Congress (SRU, MARC21) and Open Library for one ISBN.
 // GET /isbn-lookup?isbn=9783257228007  → JSON. Only ISBN digits are accepted, so this is not an open proxy.
 
 const CORS = {
@@ -149,51 +149,6 @@ async function loc(isbn13: string, isbn10: string | null) {
   return { url, ...parseMarcRecords(await r.text(), isbn13, isbn10) };
 }
 
-// ---------- Google Books ----------
-async function google(isbn13: string) {
-  const key = Deno.env.get("GOOGLE_BOOKS_KEY");
-  const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn13}${key ? `&key=${key}` : ""}`;
-  let r = await get(url);
-  // 503 backendError is often transient: retry once after a short pause
-  if (r.status === 503) { await r.body?.cancel(); await new Promise((res) => setTimeout(res, 600)); r = await get(url); }
-  if (!r.ok) {
-    let reason = "";
-    try {
-      const body = await r.json();
-      reason = [body?.error?.status, body?.error?.errors?.[0]?.reason, body?.error?.message].filter(Boolean).join(" · ");
-    } catch { /* non-JSON error body */ }
-    console.error(`google_books ${r.status} keySet=${Boolean(key)} ${reason}`);
-    throw new Error(`HTTP ${r.status}${reason ? `: ${reason}` : ""}`);
-  }
-  const data = await r.json();
-  const item = data.items?.[0];
-  if (!item) return { totalItems: data.totalItems ?? 0, found: false };
-  // The list response omits dimensions; the volume detail sometimes has them.
-  let detail: any = null;
-  try {
-    const d = await get(`${item.selfLink}${key ? `?key=${key}` : ""}`);
-    if (d.ok) detail = await d.json();
-  } catch { /* detail is optional */ }
-  const v = { ...item.volumeInfo, ...(detail?.volumeInfo ?? {}) };
-  const img = v.imageLinks ?? {};
-  const cover = img.medium ?? img.small ?? img.thumbnail ?? img.smallThumbnail ?? null;
-  return {
-    totalItems: data.totalItems,
-    found: true,
-    id: item.id,
-    title: [v.title, v.subtitle].filter(Boolean).join(" : "),
-    authors: v.authors ?? [],
-    publisher: v.publisher ?? null,
-    publishedDate: v.publishedDate ?? null,
-    pageCount: v.pageCount ?? null,
-    printedPageCount: v.printedPageCount ?? null,
-    dimensions: v.dimensions ?? null,
-    language: v.language ?? null,
-    imageLinkKeys: Object.keys(img),
-    coverUrl: cover ? cover.replace(/^http:/, "https:").replace("&edge=curl", "") : null,
-  };
-}
-
 // ---------- Open Library ----------
 async function openLibrary(isbn13: string) {
   const url = `https://openlibrary.org/isbn/${isbn13}.json`;
@@ -237,20 +192,19 @@ Deno.serve(async (req) => {
   }
   const isbn10 = to10(isbn13);
 
-  const [d, l, g, o, dc] = await Promise.all([
+  const [d, l, o, dc] = await Promise.all([
     timed(() => dnb(isbn13, isbn10)),
     timed(() => loc(isbn13, isbn10)),
-    timed(() => google(isbn13)),
     timed(() => openLibrary(isbn13)),
     timed(() => dnbCover(isbn13)),
   ]);
 
-  const db: any = d, lc: any = l, gb: any = g, ol: any = o, cv: any = dc;
+  const db: any = d, lc: any = l, ol: any = o, cv: any = dc;
   const summary = {
-    title: db.best?.title ?? lc.best?.title ?? gb.title ?? ol.title ?? null,
-    pages: { dnb: db.best?.pages ?? null, loc: lc.best?.pages ?? null, google: gb.pageCount ?? null, openLibrary: ol.numberOfPages ?? null },
-    heightCm: { dnb: db.best?.heightCm ?? null, loc: lc.best?.heightCm ?? null, google: gb.dimensions?.height ?? null, openLibrary: ol.physicalDimensions ?? null },
-    cover: { google: gb.coverUrl ?? null, openLibrary: ol.coverUrl ?? null, dnbMvb: cv.available ? cv.url : null },
+    title: db.best?.title ?? lc.best?.title ?? ol.title ?? null,
+    pages: { dnb: db.best?.pages ?? null, loc: lc.best?.pages ?? null, openLibrary: ol.numberOfPages ?? null },
+    heightCm: { dnb: db.best?.heightCm ?? null, loc: lc.best?.heightCm ?? null, openLibrary: ol.physicalDimensions ?? null },
+    cover: { openLibrary: ol.coverUrl ?? null, dnbMvb: cv.available ? cv.url : null },
   };
 
   return json({
@@ -259,6 +213,6 @@ Deno.serve(async (req) => {
     checksumValid: valid13(isbn13),
     fetchedAt: new Date().toISOString(),
     summary,
-    sources: { dnb: d, loc: l, google: g, openLibrary: o, dnbCover: dc },
+    sources: { dnb: d, loc: l, openLibrary: o, dnbCover: dc },
   });
 });
