@@ -129,10 +129,45 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;
 const val = v => v == null || v === "" ? '<span class="dim">–</span>' : esc(typeof v === "object" ? JSON.stringify(v) : v);
 const srcState = s => !s ? ['bad','missing'] : !s.ok ? ['bad', s.error || 'error'] : s.found === false ? ['warn','not found'] : ['ok', `${s.ms} ms`];
 
+/* Google Books refuses requests from Supabase's servers (503 backendFailed),
+   so the page asks Google directly from the browser. No API key needed at this volume. */
+async function googleBooks(isbn13){
+  const t = performance.now();
+  try{
+    const r = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn13}`);
+    if (!r.ok){
+      let reason = ""; try{ const b = await r.json(); reason = b?.error?.message || ""; }catch{}
+      return { ok:false, ms:Math.round(performance.now()-t), via:"browser", error:`HTTP ${r.status}${reason?`: ${reason}`:""}` };
+    }
+    const data = await r.json(); const item = data.items?.[0];
+    if (!item) return { ok:true, ms:Math.round(performance.now()-t), via:"browser", totalItems:data.totalItems ?? 0, found:false };
+    let detail = null;
+    try{ const d = await fetch(item.selfLink); if (d.ok) detail = await d.json(); }catch{}
+    const v = { ...item.volumeInfo, ...(detail?.volumeInfo ?? {}) }, img = v.imageLinks ?? {};
+    const cover = img.medium ?? img.small ?? img.thumbnail ?? img.smallThumbnail ?? null;
+    return { ok:true, ms:Math.round(performance.now()-t), via:"browser", totalItems:data.totalItems, found:true, id:item.id,
+      title:[v.title, v.subtitle].filter(Boolean).join(" : "), authors:v.authors ?? [], publisher:v.publisher ?? null,
+      publishedDate:v.publishedDate ?? null, pageCount:v.pageCount ?? null, printedPageCount:v.printedPageCount ?? null,
+      dimensions:v.dimensions ?? null, language:v.language ?? null, imageLinkKeys:Object.keys(img),
+      coverUrl: cover ? cover.replace(/^http:/,"https:").replace("&edge=curl","") : null };
+  }catch(e){ return { ok:false, ms:Math.round(performance.now()-t), via:"browser", error:String(e?.message||e) }; }
+}
+
 async function lookup(isbn){
-  const r = await fetch(`${ENDPOINT}?isbn=${encodeURIComponent(isbn)}`);
+  const [r, g0] = await Promise.all([
+    fetch(`${ENDPOINT}?isbn=${encodeURIComponent(isbn)}`),
+    (async()=>{ const d=String(isbn).replace(/[^0-9Xx]/g,""); return d.length===13 ? googleBooks(d) : null; })()
+  ]);
   const j = await r.json();
   if (!r.ok) throw new Error(j.error || `HTTP ${r.status}`);
+  const g = g0 ?? await googleBooks(j.isbn13);
+  // Prefer the browser result; keep the server attempt for comparison.
+  j.sources.googleServer = j.sources.google;
+  j.sources.google = g;
+  j.summary.pages.google = g.pageCount ?? null;
+  j.summary.heightCm.google = g.dimensions?.height ?? null;
+  j.summary.cover.google = g.coverUrl ?? null;
+  if (!j.summary.title && g.title) j.summary.title = g.title;
   return j;
 }
 

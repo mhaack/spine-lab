@@ -35,14 +35,13 @@ including every DNB record). Accepts 10- or 13-digit ISBNs, with or without hyph
 supabase functions deploy isbn-lookup --project-ref itzvyiwotjxywkpesznj
 ```
 
-### Google Books key (optional)
+### Google Books
 
-Without a key, Google Books returns HTTP 429 from Supabase's shared IPs.
-Set a key as a function secret:
-
-```sh
-supabase secrets set GOOGLE_BOOKS_KEY=... --project-ref itzvyiwotjxywkpesznj
-```
+Google Books answers requests from Supabase's servers with
+`503 backendFailed`, with or without an API key. The tester page therefore calls
+Google Books directly from the browser (no key needed) and shows that result.
+The server's attempt stays in the JSON as `sources.googleServer` for comparison.
+For the iOS app this means: call Google Books from the device, not the backend.
 
 WorldCat is not included: OCLC only issues API keys to member libraries and
 people working on their behalf.
