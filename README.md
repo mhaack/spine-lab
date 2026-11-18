@@ -17,12 +17,13 @@ ISBNs" checks nine German and five English editions and shows a hit rate per fie
 
 ## `isbn-lookup` Edge Function
 
-`supabase/functions/isbn-lookup/index.ts` runs on Supabase and merges four
+`supabase/functions/isbn-lookup/index.ts` runs on Supabase and merges five
 sources for one ISBN:
 
 | Source | Used for |
 |---|---|
 | DNB SRU (MARC21-xml) | German editions: pages (`300 $a`), height in cm (`300 $c`), editions |
+| K10plus SRU (MARCXML) | German union catalogue (GBV/SWB): same MARC fields, backup when the DNB is down |
 | Library of Congress SRU (MARCXML) | English editions: same MARC fields as the DNB |
 | Open Library | Page count, physical dimensions, cover |
 | DNB / MVB cover service | Cover availability check only (display rights restricted) |

@@ -1,4 +1,4 @@
-// isbn-lookup: merges DNB and Library of Congress (SRU, MARC21) and Open Library for one ISBN.
+// isbn-lookup: merges DNB, K10plus and Library of Congress (SRU, MARC21) and Open Library for one ISBN.
 // GET /isbn-lookup?isbn=9783257228007  → JSON. Only ISBN digits are accepted, so this is not an open proxy.
 
 const CORS = {
@@ -139,6 +139,15 @@ async function dnb(isbn13: string, isbn10: string | null) {
   return { url, ...parseMarcRecords(await r.text(), isbn13, isbn10) };
 }
 
+// ---------- K10plus (GBV/SWB union catalogue, SRU, MARCXML) — German editions, backup for the DNB ----------
+async function k10plus(isbn13: string, isbn10: string | null) {
+  const q = isbn10 ? `pica.isb%3D${isbn13}%20or%20pica.isb%3D${isbn10}` : `pica.isb%3D${isbn13}`;
+  const url = `https://sru.k10plus.de/opac-de-627?version=1.1&operation=searchRetrieve&query=${q}&recordSchema=marcxml&maximumRecords=50`;
+  const r = await get(url, "application/xml");
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return { url, ...parseMarcRecords(await r.text(), isbn13, isbn10) };
+}
+
 // ---------- Library of Congress (SRU, MARCXML) — free, strongest for US/UK editions ----------
 async function loc(isbn13: string, isbn10: string | null) {
   // LC records often carry only the ISBN-10, so query both forms.
@@ -192,18 +201,19 @@ Deno.serve(async (req) => {
   }
   const isbn10 = to10(isbn13);
 
-  const [d, l, o, dc] = await Promise.all([
+  const [d, k, l, o, dc] = await Promise.all([
     timed(() => dnb(isbn13, isbn10)),
+    timed(() => k10plus(isbn13, isbn10)),
     timed(() => loc(isbn13, isbn10)),
     timed(() => openLibrary(isbn13)),
     timed(() => dnbCover(isbn13)),
   ]);
 
-  const db: any = d, lc: any = l, ol: any = o, cv: any = dc;
+  const db: any = d, kp: any = k, lc: any = l, ol: any = o, cv: any = dc;
   const summary = {
-    title: db.best?.title ?? lc.best?.title ?? ol.title ?? null,
-    pages: { dnb: db.best?.pages ?? null, loc: lc.best?.pages ?? null, openLibrary: ol.numberOfPages ?? null },
-    heightCm: { dnb: db.best?.heightCm ?? null, loc: lc.best?.heightCm ?? null, openLibrary: ol.physicalDimensions ?? null },
+    title: db.best?.title ?? kp.best?.title ?? lc.best?.title ?? ol.title ?? null,
+    pages: { dnb: db.best?.pages ?? null, k10plus: kp.best?.pages ?? null, loc: lc.best?.pages ?? null, openLibrary: ol.numberOfPages ?? null },
+    heightCm: { dnb: db.best?.heightCm ?? null, k10plus: kp.best?.heightCm ?? null, loc: lc.best?.heightCm ?? null, openLibrary: ol.physicalDimensions ?? null },
     cover: { openLibrary: ol.coverUrl ?? null, dnbMvb: cv.available ? cv.url : null },
   };
 
@@ -213,6 +223,6 @@ Deno.serve(async (req) => {
     checksumValid: valid13(isbn13),
     fetchedAt: new Date().toISOString(),
     summary,
-    sources: { dnb: d, loc: l, openLibrary: o, dnbCover: dc },
+    sources: { dnb: d, k10plus: k, loc: l, openLibrary: o, dnbCover: dc },
   });
 });
