@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Onboarding: Regal gestalten</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Hanken+Grotesk:wght@500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#D6A24A}a:hover{color:#E8BC6A}
+button:focus-visible,a:focus-visible{outline:2px solid #D6A24A;outline-offset:2px}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; background: #120F0D; color: #F2EBDF; font-family: 'Hanken Grotesk', 'Helvetica Neue', sans-serif; display: flex; flex-direction: column">
+  <div style="display: flex; align-items: center; gap: 14px; padding: 56px 20px 0">
+    <a href="02-Hochrechnung.dc.html" aria-label="Zurück" style="width: 44px; height: 44px; flex: none; box-sizing: border-box; border-radius: 22px; border: 1px solid #2F2924; display: flex; align-items: center; justify-content: center; color: #F2EBDF">
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 L8 12 L15 19" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </a>
+    <div style="flex: 1; height: 4px; border-radius: 2px; background: #2F2924"><div style="width: 45%; height: 4px; border-radius: 2px; background: #D6A24A"></div></div>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 8px; padding: 26px 24px 0">
+    <h1 style="margin: 0; font-family: 'Young Serif', Georgia, serif; font-weight: 400; font-size: 30px; line-height: 1.15">Wie soll dein Regal aussehen?</h1>
+    <p style="margin: 0; font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 18px; line-height: 1.35; color: #A3978A">Wand, Holz, Licht und Deko. Später jederzeit änderbar.</p>
+  </div>
+  <div style="padding-top: 22px">
+    <dc-import name="Shelf" width="390" rows="2" k="0.62" seed="0" theme="{{theme}}" board="{{board}}" light="{{light}}" deco="{{decoStr}}" covers="{{ true }}" hint-size="390px,322px"></dc-import>
+  </div>
+  <div style="display: flex; gap: 8px; padding: 20px 20px 0">
+    <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+      <button type="button" onClick="{{t.pick}}" aria-pressed="{{t.pressed}}" style="height: 40px; padding: 0 16px; border-radius: 20px; background: transparent; border: {{t.border}}; color: {{t.color}}; font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer">{{t.label}}</button>
+    </sc-for>
+  </div>
+  <div style="display: flex; gap: 10px; overflow-x: auto; padding: 16px 20px 4px">
+    <sc-for list="{{opts}}" as="o" hint-placeholder-count="5">
+      <button type="button" onClick="{{o.pick}}" aria-pressed="{{o.pressed}}" style="flex: none; width: 72px; padding: 0; border: 0; background: transparent; color: #F2EBDF; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; font-family: inherit">
+        <span style="position: relative; display: block; width: 72px; height: 84px; box-sizing: border-box; border-radius: 14px; overflow: hidden; background: {{o.wall}}; border: {{o.ring}}">
+          <sc-if value="{{o.glow}}" hint-placeholder-val="{{ false }}">
+            <span style="position: absolute; inset: 0; background: {{o.glowBg}}"></span>
+          </sc-if>
+          <sc-if value="{{o.isDeco}}" hint-placeholder-val="{{ false }}">
+            <span style="position: absolute; left: 0; right: 0; bottom: 18px; display: flex; justify-content: center">
+              <sc-if value="{{o.katze}}" hint-placeholder-val="{{ false }}">
+                <svg viewBox="0 0 80 44" width="50" height="28" aria-hidden="true"><path d="M72 32 C82 26 80 12 69 15" stroke="#3B302A" stroke-width="6" fill="none" stroke-linecap="round"></path><ellipse cx="44" cy="31" rx="31" ry="13" fill="#3B302A"></ellipse><circle cx="16" cy="30" r="12" fill="#3B302A"></circle><path d="M6 24 L7 11 L15 19 Z" fill="#3B302A"></path><path d="M17 19 L25 11 L27 23 Z" fill="#3B302A"></path><path d="M9 30 q3 2.5 6 0" stroke="#D9C6A8" stroke-width="1.4" fill="none"></path><path d="M18 30 q3 2.5 6 0" stroke="#D9C6A8" stroke-width="1.4" fill="none"></path></svg>
+              </sc-if>
+              <sc-if value="{{o.lampe}}" hint-placeholder-val="{{ false }}">
+                <svg viewBox="0 0 44 150" width="20" height="56" aria-hidden="true"><path d="M12 12 H32 L40 42 H4 Z" fill="#C8923E"></path><rect x="20.5" y="44" width="3" height="92" fill="#8A6A35"></rect><rect x="9" y="136" width="26" height="10" rx="3" fill="#8A6A35"></rect></svg>
+              </sc-if>
+              <sc-if value="{{o.stuetze}}" hint-placeholder-val="{{ false }}">
+                <svg viewBox="0 0 22 120" width="14" height="52" aria-hidden="true"><path d="M2 0 H8 V112 H22 V120 H2 Z" fill="#A9853F"></path></svg>
+              </sc-if>
+              <sc-if value="{{o.pflanze}}" hint-placeholder-val="{{ false }}">
+                <svg viewBox="0 0 56 96" width="30" height="52" aria-hidden="true"><ellipse cx="16" cy="42" rx="6" ry="18" fill="#4F6B40" transform="rotate(-28 16 42)"></ellipse><ellipse cx="40" cy="42" rx="6" ry="18" fill="#6E8E58" transform="rotate(28 40 42)"></ellipse><ellipse cx="28" cy="32" rx="7" ry="26" fill="#5E7D4C"></ellipse><path d="M14 66 H42 L38 96 H18 Z" fill="#A65A3B"></path></svg>
+              </sc-if>
+            </span>
+          </sc-if>
+          <span style="position: absolute; left: 0; right: 0; bottom: 12px; height: 8px; background: {{o.stripe}}"></span>
+          <sc-if value="{{o.dots}}" hint-placeholder-val="{{ false }}">
+            <span style="position: absolute; left: 8px; right: 8px; bottom: 14px; display: flex; justify-content: space-between">
+              <span style="width: 4px; height: 4px; border-radius: 50%; background: #FFE3A6; box-shadow: 0 0 5px 2px rgba(255,200,110,0.7)"></span>
+              <span style="width: 4px; height: 4px; border-radius: 50%; background: #FFE3A6; box-shadow: 0 0 5px 2px rgba(255,200,110,0.7)"></span>
+              <span style="width: 4px; height: 4px; border-radius: 50%; background: #FFE3A6; box-shadow: 0 0 5px 2px rgba(255,200,110,0.7)"></span>
+              <span style="width: 4px; height: 4px; border-radius: 50%; background: #FFE3A6; box-shadow: 0 0 5px 2px rgba(255,200,110,0.7)"></span>
+            </span>
+          </sc-if>
+        </span>
+        <span style="font-size: 12px; color: {{o.labelColor}}; font-weight: {{o.fw}}">{{o.label}}</span>
+      </button>
+    </sc-for>
+  </div>
+  <a href="04-Erste-Buecher.dc.html" style="position: absolute; left: 20px; right: 20px; bottom: 34px; height: 56px; border-radius: 28px; background: #F2EBDF; color: #120F0D; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 600; text-decoration: none">Weiter</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tab: 'wand', theme: 'lesesaal', board: 'passend', light: 'lichterkette', deco: ['lampe', 'katze'] };
+  }
+  renderVals() {
+    const s = this.state;
+    const THEMES = {
+      lesesaal: ['Lesesaal', '#2A201B', '#7E5435'],
+      mitternacht: ['Mitternacht', '#121419', '#2C2F38'],
+      leinen: ['Leinen', '#E6DED0', '#C2B293'],
+      moos: ['Moos', '#232C26', '#6B5638'],
+      tinte: ['Tinte', '#1B2033', '#3B415E']
+    };
+    const BOARDS = {
+      passend: ['Passend', null], eiche: ['Eiche', '#B5895A'], nussbaum: ['Nussbaum', '#5C3D29'],
+      kirsche: ['Kirsche', '#8C4A32'], birke: ['Birke', '#D8C9AE'], schwarz: ['Schwarz', '#201E1D']
+    };
+    const LIGHTS = { aus: 'Aus', leselampe: 'Leselampe', lichterkette: 'Lichterkette', mondlicht: 'Mondlicht' };
+    const DECO = { katze: 'Katze', lampe: 'Lampe', stuetze: 'Buchstütze', pflanze: 'Pflanze' };
+    const wall = THEMES[s.theme][1];
+    const boardColor = BOARDS[s.board][1] || THEMES[s.theme][2];
+    const glowFor = (l) => l === 'leselampe' ? 'radial-gradient(ellipse 90% 80% at 50% 0%, rgba(255,184,102,0.35), rgba(255,184,102,0) 70%)'
+      : l === 'mondlicht' ? 'radial-gradient(ellipse 90% 80% at 50% 0%, rgba(176,194,255,0.3), rgba(176,194,255,0) 70%)' : '';
+    const base = (key, label, on, pick) => ({
+      key, label, pick, pressed: on,
+      ring: on ? '2px solid #D6A24A' : '1px solid #2F2924',
+      labelColor: on ? '#F2EBDF' : '#A3978A', fw: on ? 600 : 500,
+      wall, stripe: boardColor, glow: false, glowBg: '', dots: false, isDeco: false
+    });
+    let opts = [];
+    if (s.tab === 'wand') {
+      opts = Object.keys(THEMES).map((key) => ({
+        ...base(key, THEMES[key][0], s.theme === key, () => this.setState({ theme: key })),
+        wall: THEMES[key][1], stripe: BOARDS[s.board][1] || THEMES[key][2]
+      }));
+    } else if (s.tab === 'holz') {
+      opts = Object.keys(BOARDS).map((key) => ({
+        ...base(key, BOARDS[key][0], s.board === key, () => this.setState({ board: key })),
+        stripe: BOARDS[key][1] || THEMES[s.theme][2]
+      }));
+    } else if (s.tab === 'licht') {
+      opts = Object.keys(LIGHTS).map((key) => {
+        const g = glowFor(key);
+        return { ...base(key, LIGHTS[key], s.light === key, () => this.setState({ light: key })), glow: !!g, glowBg: g, dots: key === 'lichterkette' };
+      });
+    } else {
+      opts = Object.keys(DECO).map((key) => {
+        const on = s.deco.includes(key);
+        const o = base(key, DECO[key], on, () => this.setState({ deco: on ? s.deco.filter((x) => x !== key) : s.deco.concat(key) }));
+        o.isDeco = true;
+        o[key] = true;
+        return o;
+      });
+    }
+    const TABS = [['wand', 'Wand'], ['holz', 'Holz'], ['licht', 'Licht'], ['deko', 'Deko']];
+    const tabs = TABS.map(([key, label]) => {
+      const on = s.tab === key;
+      return {
+        key, label, pressed: on, pick: () => this.setState({ tab: key }),
+        border: on ? '1.5px solid #F2EBDF' : '1px solid #2F2924', color: on ? '#F2EBDF' : '#A3978A'
+      };
+    });
+    return { tabs, opts, theme: s.theme, board: s.board, light: s.light, decoStr: s.deco.join(',') };
+  }
+}
+</script>
+</body>
+</html>

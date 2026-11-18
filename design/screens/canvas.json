@@ -1,0 +1,39 @@
+{
+  "v": 3,
+  "createdOnFiles": {"v": 1, "at": "2026-10-18T15:00:00Z"},
+  "title": "Buchregal-App Designkonzept",
+  "launch": {"view": "canvas"},
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {"x": 0, "y": 0, "w": 900, "h": 844, "title": "Konzept: Rücken"},
+    "Shelf.dc.html": {"x": 980, "y": 0, "w": 358, "h": 456, "title": "Komponente: Regal", "is_interactive": false},
+    "01-Leseziel.dc.html": {"x": 0, "y": 1210, "w": 390, "h": 844, "title": "01 Leseziel", "is_interactive": true},
+    "02-Hochrechnung.dc.html": {"x": 470, "y": 1210, "w": 390, "h": 844, "title": "02 Hochrechnung", "is_interactive": true},
+    "03-Regal-gestalten.dc.html": {"x": 940, "y": 1210, "w": 390, "h": 844, "title": "03 Regal gestalten", "is_interactive": true},
+    "04-Erste-Buecher.dc.html": {"x": 1410, "y": 1210, "w": 390, "h": 844, "title": "04 Erste Bücher", "is_interactive": true},
+    "05-Regal.dc.html": {"x": 0, "y": 2420, "w": 390, "h": 844, "title": "05 Mein Regal", "is_interactive": true},
+    "06-Scanner.dc.html": {"x": 470, "y": 2420, "w": 390, "h": 844, "title": "06 Scannen", "is_interactive": true},
+    "07-Buchdetail.dc.html": {"x": 940, "y": 2420, "w": 390, "h": 844, "title": "07 Buchdetail", "is_interactive": true},
+    "08-Widgets.dc.html": {"x": 1880, "y": 2420, "w": 390, "h": 844, "title": "09 Widgets"},
+    "09-Ordnen.dc.html": {"x": 1410, "y": 2420, "w": 390, "h": 844, "title": "08 Regal ordnen", "is_interactive": true}
+  },
+  "order": [
+    "Main.dc.html",
+    "Shelf.dc.html",
+    "01-Leseziel.dc.html",
+    "02-Hochrechnung.dc.html",
+    "03-Regal-gestalten.dc.html",
+    "04-Erste-Buecher.dc.html",
+    "05-Regal.dc.html",
+    "06-Scanner.dc.html",
+    "07-Buchdetail.dc.html",
+    "09-Ordnen.dc.html",
+    "08-Widgets.dc.html"
+  ],
+  "notes": {
+    "t_konzept": {"x": 0, "y": -300, "text": "Rücken · Designkonzept", "kind": "title1", "maxW": 1340},
+    "t_onboarding": {"x": 0, "y": 950, "text": "Onboarding: vom Leseziel zum eigenen Regal", "kind": "title1", "maxW": 1800},
+    "t_alltag": {"x": 0, "y": 2160, "text": "Im Alltag: Regal, Scannen, Detail, Ordnen, Widget", "kind": "title1", "maxW": 2270}
+  },
+  "designSystems": []
+}

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Onboarding: Hochrechnung</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Hanken+Grotesk:wght@500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#D6A24A}a:hover{color:#E8BC6A}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; background: #120F0D; color: #F2EBDF; font-family: 'Hanken Grotesk', 'Helvetica Neue', sans-serif; display: flex; flex-direction: column">
+  <div style="display: flex; align-items: center; gap: 14px; padding: 56px 20px 0">
+    <a href="01-Leseziel.dc.html" aria-label="Zurück" style="width: 44px; height: 44px; flex: none; box-sizing: border-box; border-radius: 22px; border: 1px solid #2F2924; display: flex; align-items: center; justify-content: center; color: #F2EBDF">
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 L8 12 L15 19" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </a>
+    <div style="flex: 1; height: 4px; border-radius: 2px; background: #2F2924"><div style="width: 30%; height: 4px; border-radius: 2px; background: #D6A24A"></div></div>
+  </div>
+  <div style="padding: 30px 24px 0">
+    <dc-import name="Shelf" width="342" rows="3" k="0.5" seed="2" theme="lesesaal" light="leselampe" deco="katze,pflanze,lampe" hint-size="342px,396px"></dc-import>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 6px; padding: 14px 24px 0">
+    <div style="position: relative; height: 10px; border-left: 1px solid #A3978A; border-right: 1px solid #A3978A">
+      <div style="position: absolute; left: 0; right: 0; top: 5px; height: 1px; background: #A3978A"></div>
+    </div>
+    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #A3978A; font-variant-numeric: tabular-nums"><span>0 m</span><span>so lang wird dein Regal</span><span>4,2 m</span></div>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 18px; padding: 24px 24px 0">
+    <h1 style="margin: 0; font-family: 'Young Serif', Georgia, serif; font-weight: 400; font-size: 28px; line-height: 1.2; text-align: center; text-wrap: balance">In zehn Jahren stehen hier <span style="color: #D6A24A">240 Bücher</span>.</h1>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 14px 8px; background: #1C1815; border: 1px solid #2F2924; border-radius: 14px">
+        <span style="font-family: 'Young Serif', Georgia, serif; font-size: 28px">4,2 m</span>
+        <span style="font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 16px; color: #A3978A">Regal</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 14px 8px; background: #1C1815; border: 1px solid #2F2924; border-radius: 14px">
+        <span style="font-family: 'Young Serif', Georgia, serif; font-size: 28px">15 Tage</span>
+        <span style="font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 16px; color: #A3978A">pro Buch</span>
+      </div>
+    </div>
+    <p style="margin: 0; font-size: 13px; line-height: 1.45; color: #A3978A; text-align: center">Gerechnet mit 300 Seiten pro Buch: 17,5 mm Rücken.</p>
+  </div>
+  <a href="03-Regal-gestalten.dc.html" style="position: absolute; left: 20px; right: 20px; bottom: 34px; height: 56px; border-radius: 28px; background: #F2EBDF; color: #120F0D; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 600; text-decoration: none">Regal einrichten</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

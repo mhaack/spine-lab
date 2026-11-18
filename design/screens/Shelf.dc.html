@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Regal-Komponente</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Hanken+Grotesk:wght@500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: {{W}}px; box-sizing: border-box; background: {{wall}}; border-left: 8px solid {{board}}; border-right: 8px solid {{board}}; display: flex; flex-direction: column; font-family: 'Hanken Grotesk', 'Helvetica Neue', sans-serif">
+  <sc-for list="{{shelfRows}}" as="row" hint-placeholder-count="2">
+    <div style="position: relative; height: {{rowH}}px; display: flex; align-items: flex-end; gap: 1px; padding: 0 10px; overflow: hidden">
+      <sc-if value="{{hasGlow}}" hint-placeholder-val="{{ false }}">
+        <div aria-hidden="true" style="position: absolute; inset: 0; background: {{glow}}; pointer-events: none"></div>
+      </sc-if>
+      <sc-for list="{{row.items}}" as="it" hint-placeholder-count="12">
+        <sc-if value="{{it.isSpine}}" hint-placeholder-val="{{ true }}">
+          <div style="position: relative; flex: none; width: {{it.w}}px; height: {{it.h}}px; background: {{it.c}}; color: {{it.ink}}; border-radius: {{it.r}}; box-shadow: inset 2px 0 0 rgba(255,255,255,0.10), inset -2px 0 0 rgba(0,0,0,0.28); display: flex; flex-direction: column; overflow: hidden">
+            <sc-if value="{{it.band}}" hint-placeholder-val="{{ false }}">
+              <div style="flex: none; height: {{it.bandH}}px; margin-top: {{it.bandM}}px; background: {{it.ink}}; opacity: 0.88"></div>
+            </sc-if>
+            <sc-if value="{{it.rules}}" hint-placeholder-val="{{ false }}">
+              <div style="position: absolute; left: 16%; right: 16%; top: 5%; height: 3px; border-top: 1px solid {{it.ink}}; border-bottom: 1px solid {{it.ink}}"></div>
+              <div style="position: absolute; left: 16%; right: 16%; bottom: 5%; height: 3px; border-top: 1px solid {{it.ink}}; border-bottom: 1px solid {{it.ink}}"></div>
+            </sc-if>
+            <div style="flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 8px 0">
+              <sc-if value="{{it.text}}" hint-placeholder-val="{{ true }}">
+                <span style="display: block; writing-mode: vertical-rl; transform: {{it.rot}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-height: 100%; font-family: {{it.font}}; font-size: {{it.fs}}px; font-weight: {{it.fw}}; letter-spacing: {{it.ls}}; text-transform: {{it.tt}}; line-height: 1">{{it.title}}</span>
+              </sc-if>
+            </div>
+            <sc-if value="{{it.mono}}" hint-placeholder-val="{{ false }}">
+              <div style="flex: none; height: {{it.monoH}}px; display: flex; align-items: center; justify-content: center; font-size: {{it.mfs}}px; font-weight: 700; letter-spacing: 0.02em; opacity: 0.85">{{it.pub}}</div>
+            </sc-if>
+          </div>
+        </sc-if>
+        <sc-if value="{{it.isCover}}" hint-placeholder-val="{{ false }}">
+          <div style="position: relative; z-index: 1; flex: none; width: {{it.w}}px; height: {{it.h}}px; margin: 0 3px; box-sizing: border-box; padding: {{it.pad}}px; background: {{it.c}}; color: {{it.ink}}; border-radius: 2px 3px 3px 2px; box-shadow: inset 4px 0 0 rgba(0,0,0,0.18), 0 6px 12px rgba(0,0,0,0.45); display: flex; flex-direction: column; justify-content: space-between">
+            <div style="font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: {{it.afs}}px; opacity: 0.85">{{it.author}}</div>
+            <div style="font-family: 'Young Serif', Georgia, serif; font-size: {{it.tfs}}px; line-height: 1.05">{{it.title}}</div>
+            <div style="height: 2px; width: 40%; background: {{it.ink}}; opacity: 0.6"></div>
+          </div>
+        </sc-if>
+        <sc-if value="{{it.isLampe}}" hint-placeholder-val="{{ false }}">
+          <div style="flex: none; width: {{it.box}}px; display: flex; justify-content: center; align-items: flex-end">
+            <svg viewBox="0 0 44 150" width="{{it.w}}" height="{{it.h}}" aria-hidden="true">
+              <ellipse cx="22" cy="62" rx="21" ry="26" fill="rgba(255,206,130,0.16)"></ellipse>
+              <path d="M12 12 H32 L40 42 H4 Z" fill="#C8923E"></path>
+              <ellipse cx="22" cy="43" rx="8" ry="3" fill="#FFE2A8"></ellipse>
+              <rect x="20.5" y="44" width="3" height="92" fill="#8A6A35"></rect>
+              <rect x="9" y="136" width="26" height="10" rx="3" fill="#8A6A35"></rect>
+            </svg>
+          </div>
+        </sc-if>
+        <sc-if value="{{it.isKatze}}" hint-placeholder-val="{{ false }}">
+          <div style="flex: none; width: {{it.box}}px; display: flex; justify-content: center; align-items: flex-end">
+            <svg viewBox="0 0 80 44" width="{{it.w}}" height="{{it.h}}" aria-hidden="true">
+              <path d="M72 32 C82 26 80 12 69 15" stroke="#3B302A" stroke-width="6" fill="none" stroke-linecap="round"></path>
+              <ellipse cx="44" cy="31" rx="31" ry="13" fill="#3B302A"></ellipse>
+              <path d="M38 19 q4 5 0 10" stroke="#2A221E" stroke-width="2" fill="none"></path>
+              <path d="M50 19 q4 5 0 10" stroke="#2A221E" stroke-width="2" fill="none"></path>
+              <circle cx="16" cy="30" r="12" fill="#3B302A"></circle>
+              <path d="M6 24 L7 11 L15 19 Z" fill="#3B302A"></path>
+              <path d="M17 19 L25 11 L27 23 Z" fill="#3B302A"></path>
+              <path d="M9 30 q3 2.5 6 0" stroke="#D9C6A8" stroke-width="1.4" fill="none" stroke-linecap="round"></path>
+              <path d="M18 30 q3 2.5 6 0" stroke="#D9C6A8" stroke-width="1.4" fill="none" stroke-linecap="round"></path>
+            </svg>
+          </div>
+        </sc-if>
+        <sc-if value="{{it.isStuetze}}" hint-placeholder-val="{{ false }}">
+          <div style="flex: none; width: {{it.box}}px; display: flex; justify-content: center; align-items: flex-end">
+            <svg viewBox="0 0 22 120" width="{{it.w}}" height="{{it.h}}" aria-hidden="true">
+              <path d="M2 0 H8 V112 H22 V120 H2 Z" fill="#A9853F"></path>
+            </svg>
+          </div>
+        </sc-if>
+        <sc-if value="{{it.isPflanze}}" hint-placeholder-val="{{ false }}">
+          <div style="flex: none; width: {{it.box}}px; display: flex; justify-content: center; align-items: flex-end">
+            <svg viewBox="0 0 56 96" width="{{it.w}}" height="{{it.h}}" aria-hidden="true">
+              <ellipse cx="16" cy="42" rx="6" ry="18" fill="#4F6B40" transform="rotate(-28 16 42)"></ellipse>
+              <ellipse cx="40" cy="42" rx="6" ry="18" fill="#6E8E58" transform="rotate(28 40 42)"></ellipse>
+              <ellipse cx="28" cy="32" rx="7" ry="26" fill="#5E7D4C"></ellipse>
+              <path d="M14 66 H42 L38 96 H18 Z" fill="#A65A3B"></path>
+              <rect x="11" y="60" width="34" height="8" rx="2" fill="#B9694A"></rect>
+            </svg>
+          </div>
+        </sc-if>
+      </sc-for>
+    </div>
+    <div style="position: relative; z-index: 2; height: 12px; box-sizing: border-box; background: {{board}}; border-top: 2px solid {{boardTop}}; box-shadow: 0 6px 10px -4px rgba(0,0,0,0.5)">
+      <sc-if value="{{fairy}}" hint-placeholder-val="{{ false }}">
+        <div aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 3px; height: 1px; background: rgba(40,28,18,0.7)"></div>
+        <div aria-hidden="true" style="position: absolute; left: 6px; right: 6px; top: 0; display: flex; justify-content: space-between">
+          <sc-for list="{{dots}}" as="dot" hint-placeholder-count="10">
+            <div style="width: 5px; height: 5px; border-radius: 50%; background: #FFE3A6; box-shadow: 0 0 6px 2px rgba(255,200,110,0.65)"></div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"width":{"editor":"int","default":358,"min":160,"max":800},"rows":{"editor":"int","default":2,"min":1,"max":4},"k":{"editor":"float","default":0.9,"min":0.4,"max":1.4,"step":0.05,"section":"Maßstab"},"seed":{"editor":"int","default":0},"theme":{"editor":"enum","options":["lesesaal","mitternacht","leinen","moos","tinte"],"default":"lesesaal","section":"Look"},"board":{"editor":"enum","options":["passend","eiche","nussbaum","kirsche","birke","schwarz"],"default":"passend","section":"Look"},"light":{"editor":"enum","options":["aus","leselampe","lichterkette","mondlicht"],"default":"leselampe","section":"Look"},"covers":{"editor":"boolean","default":true,"section":"Inhalt"},"deco":{"editor":"text","default":"lampe,katze","section":"Inhalt"},"sort":{"editor":"enum","options":["keine","farbe","autor","hoehe"],"default":"keine","section":"Inhalt"},"direction":{"editor":"enum","options":["de","en"],"default":"de","section":"Inhalt"},"$preview":{"width":358,"height":456}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const P = this.props;
+    const W = Number(P.width ?? 358);
+    const rows = Math.max(1, Number(P.rows ?? 2));
+    const k = Number(P.k ?? 0.9);
+    const seed = Number(P.seed ?? 0);
+    const covers = P.covers === undefined ? true : (P.covers === true || P.covers === 'true');
+    const decoList = String(P.deco ?? 'lampe,katze').split(',').map((s) => s.trim()).filter((s) => ['lampe', 'katze', 'stuetze', 'pflanze'].includes(s));
+    const sort = P.sort ?? 'keine';
+    const rot = (P.direction ?? 'de') === 'en' ? 'none' : 'rotate(180deg)';
+
+    const THEMES = {
+      lesesaal: { wall: '#2A201B', board: '#7E5435', light: false },
+      mitternacht: { wall: '#121419', board: '#2C2F38', light: false },
+      leinen: { wall: '#E6DED0', board: '#C2B293', light: true },
+      moos: { wall: '#232C26', board: '#6B5638', light: false },
+      tinte: { wall: '#1B2033', board: '#3B415E', light: false }
+    };
+    const BOARDS = { eiche: '#B5895A', nussbaum: '#5C3D29', kirsche: '#8C4A32', birke: '#D8C9AE', schwarz: '#201E1D' };
+    const th = THEMES[P.theme] || THEMES.lesesaal;
+    const board = (P.board && P.board !== 'passend' && BOARDS[P.board]) || th.board;
+    const LIGHT = { aus: null, leselampe: '255,184,102', lichterkette: '255,196,120', mondlicht: '176,194,255' };
+    const lightMode = P.light ?? 'leselampe';
+    const lc = LIGHT[lightMode];
+    const fairy = lightMode === 'lichterkette';
+    const glow = !lc ? '' : fairy
+      ? 'linear-gradient(to top, rgba(' + lc + ',0.16) 0%, rgba(' + lc + ',0) 28%)'
+      : 'radial-gradient(ellipse 75% 95% at 50% 0%, rgba(' + lc + ',' + (th.light ? 0.2 : 0.26) + ') 0%, rgba(' + lc + ',0) 72%)';
+
+    const rgb = (hex) => { const n = parseInt(hex.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+    const lum = (hex) => { const v = rgb(hex).map((x) => { x /= 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); }); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; };
+    const mix = (hex, t) => '#' + rgb(hex).map((x) => Math.round(x + (255 - x) * t).toString(16).padStart(2, '0')).join('');
+    const hue = (hex) => {
+      const [r, g, b] = rgb(hex).map((x) => x / 255);
+      const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+      if (d < 0.12) return 400 + (1 - mx) * 100;
+      let h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+      return (h * 60 + 360) % 360;
+    };
+
+    // title, author, pages, height cm, hardcover, colour, style, publisher mark
+    const B = [
+      ['Die Verwandlung', 'Franz Kafka', 79, 15, 0, '#E2BE3A', 'plain', 'R'],
+      ['Der Zauberberg', 'Thomas Mann', 1059, 19, 0, '#2B3F63', 'bold', 'FTB'],
+      ['Das Parfum', 'Patrick Süskind', 319, 19, 0, '#E8E1D2', 'plain', 'D'],
+      ['Herkunft', 'Saša Stanišić', 355, 22, 1, '#D25637', 'bold', 'L'],
+      ['Die Vermessung der Welt', 'Daniel Kehlmann', 301, 19, 0, '#2F7A68', 'band', 'ro'],
+      ['Emil und die Detektive', 'Erich Kästner', 166, 19, 1, '#9B2B2E', 'classic', 'Dr'],
+      ['Unterleuten', 'Juli Zeh', 639, 22, 1, '#88A8C4', 'plain', 'L'],
+      ['Als wir träumten', 'Clemens Meyer', 517, 22, 1, '#26221F', 'band', 'SF'],
+      ['Faust I', 'Johann Wolfgang Goethe', 135, 15, 0, '#E2BE3A', 'plain', 'R'],
+      ['Pride and Prejudice', 'Jane Austen', 477, 20, 0, '#5B4060', 'classic', 'P'],
+      ['Tschick', 'Wolfgang Herrndorf', 256, 19, 0, '#1F6FA8', 'bold', 'ro'],
+      ['Momo', 'Michael Ende', 304, 21, 1, '#C9A27A', 'classic', 'Th'],
+      ['Der Vorleser', 'Bernhard Schlink', 207, 19, 0, '#3A3734', 'band', 'D'],
+      ['Krabat', 'Otfried Preußler', 320, 21, 1, '#4E6B3A', 'classic', 'Th'],
+      ['Effi Briest', 'Theodor Fontane', 336, 15, 0, '#E2BE3A', 'plain', 'R'],
+      ['Die unendliche Geschichte', 'Michael Ende', 480, 23, 1, '#8E2F3C', 'classic', 'Th']
+    ];
+    const FAV = [3, 13, 11];
+
+    const serif = "'Newsreader', Georgia, serif";
+    const sans = "'Hanken Grotesk', 'Helvetica Neue', sans-serif";
+    const spine = (b) => {
+      const [t, a, p, hcm, hc, c, s, pub] = b;
+      const w = Math.max(3, Math.round((p * 0.055 + (hc ? 4 : 1)) * k * 10) / 10);
+      const h = Math.round(hcm * 10 * k);
+      const light = lum(c) > 0.42;
+      const ink = s === 'classic' ? (light ? '#6A4E17' : '#D9B76C') : (light ? '#1E1915' : '#F3ECE0');
+      const caps = s === 'bold' || s === 'band';
+      const fs = Math.max(6, Math.min(w * (s === 'bold' ? 0.6 : 0.5), (s === 'bold' ? 16 : 13) * k * 1.1));
+      return {
+        isSpine: true, w, h, c, ink, rot, title: t,
+        r: hc ? '2px 2px 0 0' : '1px 1px 0 0',
+        band: s === 'band', bandH: Math.round(h * 0.16), bandM: Math.round(h * 0.07),
+        rules: s === 'classic', text: w >= 8,
+        font: caps ? sans : serif, fs: fs.toFixed(1), fw: s === 'bold' ? 700 : (s === 'band' ? 600 : 500),
+        ls: caps ? '0.04em' : '0', tt: caps ? 'uppercase' : 'none',
+        mono: w >= 8 && h > 90, monoH: Math.round(Math.min(18, h * 0.1)), mfs: Math.min(9, w * 0.4).toFixed(1), pub
+      };
+    };
+    const cover = (b) => {
+      const [t, a, , hcm, , c] = b;
+      const h = Math.round(hcm * 10 * k);
+      return {
+        isCover: true, w: Math.round(hcm * 6.4 * k), h, c, ink: lum(c) > 0.42 ? '#1E1915' : '#F3ECE0',
+        pad: Math.round(10 * k), title: t, author: a, tfs: Math.round(22 * k), afs: Math.round(11 * k)
+      };
+    };
+    const DECO = {
+      lampe: { w: 44, h: 150, pad: 10 },
+      katze: { w: 80, h: 44, pad: 6 },
+      stuetze: { w: 22, h: 120, pad: 2 },
+      pflanze: { w: 56, h: 96, pad: 8 }
+    };
+    const deco = (kind) => {
+      const d = DECO[kind];
+      const w = Math.round(d.w * k), h = Math.round(d.h * k);
+      const item = { w, h, box: w + Math.round(d.pad * 2 * k) };
+      item['is' + kind.charAt(0).toUpperCase() + kind.slice(1)] = true;
+      return item;
+    };
+
+    let order = B.map((b, i) => i);
+    order = order.slice(seed % B.length).concat(order.slice(0, seed % B.length));
+    if (sort === 'farbe') order.sort((x, y) => hue(B[x][5]) - hue(B[y][5]));
+    if (sort === 'autor') order.sort((x, y) => B[x][1].split(' ').pop().localeCompare(B[y][1].split(' ').pop(), 'de'));
+    if (sort === 'hoehe') order.sort((x, y) => B[y][3] - B[x][3] || B[y][2] - B[x][2]);
+    const favUsed = [];
+
+    const inner = W - 16 - 20;
+    const rowH = Math.round(240 * k);
+    const shelfRows = [];
+    let idx = 0;
+    for (let r = 0; r < rows; r++) {
+      const items = [];
+      let used = 0;
+      const kind = decoList.length ? decoList[(r + seed) % decoList.length] : null;
+      const d = kind ? deco(kind) : null;
+      const atStart = r % 2 === 1;
+      if (d) used += d.box + 1;
+      if (d && atStart) items.push(d);
+      const coverIdx = covers && r % 2 === 0 ? FAV[(r / 2 + seed) % FAV.length] : -1;
+      const cv = coverIdx >= 0 ? cover(B[coverIdx]) : null;
+      if (cv) used += cv.w + 7;
+      let count = 0, misses = 0, placedCover = !cv;
+      while (misses < B.length && inner - used >= 4) {
+        const bi = order[idx % order.length];
+        idx++;
+        if (covers && FAV.includes(bi)) { misses++; continue; }
+        const s = spine(B[bi]);
+        if (used + s.w + 1 <= inner) {
+          items.push(s); used += s.w + 1; count++; misses = 0;
+          if (!placedCover && count === 4) { items.push(cv); placedCover = true; favUsed.push(coverIdx); }
+        } else { misses++; }
+      }
+      if (!placedCover) items.push(cv);
+      if (d && !atStart) items.push(d);
+      shelfRows.push({ items });
+    }
+    const dots = Array.from({ length: Math.max(4, Math.round((W - 28) / 30)) }, (_, i) => ({ i }));
+    return { W, wall: th.wall, board, boardTop: mix(board, 0.28), rowH, glow, hasGlow: !!glow, shelfRows, fairy, dots };
+  }
+}
+</script>
+</body>
+</html>

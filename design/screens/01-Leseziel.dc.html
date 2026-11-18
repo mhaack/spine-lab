@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Onboarding: Leseziel</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Hanken+Grotesk:wght@500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#D6A24A}a:hover{color:#E8BC6A}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; background: #120F0D; color: #F2EBDF; font-family: 'Hanken Grotesk', 'Helvetica Neue', sans-serif; display: flex; flex-direction: column">
+  <div style="display: flex; align-items: center; gap: 14px; padding: 56px 20px 0">
+    <span style="width: 44px; height: 44px; flex: none"></span>
+    <div style="flex: 1; height: 4px; border-radius: 2px; background: #2F2924"><div style="width: 15%; height: 4px; border-radius: 2px; background: #D6A24A"></div></div>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 10px; padding: 32px 24px 0">
+    <h1 style="margin: 0; font-family: 'Young Serif', Georgia, serif; font-weight: 400; font-size: 31px; line-height: 1.15; text-wrap: balance">Wie viele Bücher schaffst du im Jahr?</h1>
+    <p style="margin: 0; font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 19px; line-height: 1.35; color: #A3978A">Eine grobe Zahl reicht. Daraus wird dein Jahresregal.</p>
+  </div>
+  <div style="padding: 28px 24px 0">
+    <dc-import name="Shelf" width="342" rows="1" k="0.95" seed="4" theme="lesesaal" light="lichterkette" covers="{{ false }}" deco="stuetze" hint-size="342px,240px"></dc-import>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 22px">
+    <div style="display: flex; align-items: baseline; gap: 10px">
+      <span style="font-family: 'Young Serif', Georgia, serif; font-size: 68px; line-height: 1">24</span>
+      <span style="font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 21px; color: #C9BEB0">Bücher im Jahr</span>
+    </div>
+    <div style="font-size: 14px; color: #A3978A">Das sind etwa 42 cm neues Regal pro Jahr.</div>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 8px; padding: 22px 24px 0">
+    <label for="goal" style="font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #A3978A">Jahresziel</label>
+    <input id="goal" type="range" min="1" max="60" value="24" style="width: 100%; margin: 0; accent-color: #D6A24A">
+    <div style="display: flex; justify-content: space-between; font-size: 13px; color: #A3978A"><span>1</span><span>60+</span></div>
+  </div>
+  <a href="02-Hochrechnung.dc.html" style="position: absolute; left: 20px; right: 20px; bottom: 34px; height: 56px; border-radius: 28px; background: #F2EBDF; color: #120F0D; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 600; text-decoration: none">Weiter</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

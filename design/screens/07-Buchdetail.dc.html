@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Buchdetail</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Hanken+Grotesk:wght@500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#D6A24A}a:hover{color:#E8BC6A}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; background: #120F0D; color: #F2EBDF; font-family: 'Hanken Grotesk', 'Helvetica Neue', sans-serif; display: flex; flex-direction: column; gap: 20px; padding: 56px 20px 0">
+  <div style="display: flex; align-items: center; justify-content: space-between">
+    <a href="05-Regal.dc.html" aria-label="Zurück zum Regal" style="width: 44px; height: 44px; box-sizing: border-box; border-radius: 22px; border: 1px solid #2F2924; display: flex; align-items: center; justify-content: center; color: #F2EBDF">
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 L8 12 L15 19" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </a>
+    <span style="font-size: 12px; color: #A3978A">Daten: DNB, CC0</span>
+  </div>
+
+  <div style="display: flex; gap: 20px; align-items: flex-end">
+    <div style="flex: none; width: 65px; height: 209px; background: #2B3F63; color: #F3ECE0; border-radius: 1px 1px 0 0; box-shadow: inset 3px 0 0 rgba(255,255,255,0.1), inset -3px 0 0 rgba(0,0,0,0.3), 0 8px 18px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; overflow: hidden">
+      <div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 14px 0">
+        <span style="writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; font-weight: 700; font-size: 22px; letter-spacing: 0.05em; text-transform: uppercase; line-height: 1">Der Zauberberg</span>
+      </div>
+      <div style="height: 26px; font-size: 9px; font-weight: 700">FTB</div>
+    </div>
+    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+      <div>
+        <h1 style="margin: 0; font-family: 'Young Serif', Georgia, serif; font-weight: 400; font-size: 27px; line-height: 1.1">Der Zauberberg</h1>
+        <div style="margin-top: 4px; font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 17px; color: #C9BEB0">Thomas Mann</div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; font-variant-numeric: tabular-nums">
+        <div style="padding: 8px 10px; border-radius: 10px; background: #1C1815"><div style="font-size: 11px; color: #A3978A">Seiten</div><div style="font-size: 16px; font-weight: 600">1059</div></div>
+        <div style="padding: 8px 10px; border-radius: 10px; background: #1C1815"><div style="font-size: 11px; color: #A3978A">Höhe</div><div style="font-size: 16px; font-weight: 600">19 cm</div></div>
+        <div style="padding: 8px 10px; border-radius: 10px; background: #1C1815"><div style="font-size: 11px; color: #A3978A">Rücken</div><div style="font-size: 16px; font-weight: 600">59 mm</div></div>
+        <div style="padding: 8px 10px; border-radius: 10px; background: #1C1815"><div style="font-size: 11px; color: #A3978A">Ausgabe</div><div style="font-size: 16px; font-weight: 600">2025</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #A3978A">Im Regal zeigen</div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 14px; background: #1C1815">
+      <button type="button" aria-pressed="true" style="height: 40px; border: 0; border-radius: 10px; background: #F2EBDF; color: #120F0D; font-family: inherit; font-size: 14px; font-weight: 600">Rücken</button>
+      <button type="button" aria-pressed="false" style="height: 40px; border: 0; border-radius: 10px; background: transparent; color: #C9BEB0; font-family: inherit; font-size: 14px; font-weight: 600">Cover nach vorn</button>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #A3978A">Lesestatus</div>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 14px; background: #1C1815">
+      <button type="button" aria-pressed="false" style="height: 40px; border: 0; border-radius: 10px; background: transparent; color: #C9BEB0; font-family: inherit; font-size: 14px; font-weight: 600">Wunschliste</button>
+      <button type="button" aria-pressed="true" style="height: 40px; border: 0; border-radius: 10px; background: #D6A24A; color: #120F0D; font-family: inherit; font-size: 14px; font-weight: 600">Lese gerade</button>
+      <button type="button" aria-pressed="false" style="height: 40px; border: 0; border-radius: 10px; background: transparent; color: #C9BEB0; font-family: inherit; font-size: 14px; font-weight: 600">Gelesen</button>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px">
+      <div style="flex: 1; height: 4px; border-radius: 2px; background: #2F2924"><div style="width: 20%; height: 4px; border-radius: 2px; background: #D6A24A"></div></div>
+      <span style="font-size: 13px; color: #A3978A; font-variant-numeric: tabular-nums">S. 212 von 1059</span>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #A3978A">Rücken-Stil</div>
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px">
+      <button type="button" aria-pressed="false" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 0 8px; border-radius: 12px; border: 1px solid #2F2924; background: transparent; color: #C9BEB0; font-family: inherit; font-size: 12px">
+        <span style="width: 20px; height: 64px; background: #2B3F63; display: flex; flex-direction: column"><span style="height: 10px; margin-top: 5px; background: #F3ECE0"></span></span>Band
+      </button>
+      <button type="button" aria-pressed="false" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 0 8px; border-radius: 12px; border: 1px solid #2F2924; background: transparent; color: #C9BEB0; font-family: inherit; font-size: 12px">
+        <span style="position: relative; width: 20px; height: 64px; background: #2B3F63"><span style="position: absolute; left: 3px; right: 3px; top: 4px; height: 2px; border-top: 1px solid #D9B76C; border-bottom: 1px solid #D9B76C"></span><span style="position: absolute; left: 3px; right: 3px; bottom: 4px; height: 2px; border-top: 1px solid #D9B76C; border-bottom: 1px solid #D9B76C"></span></span>Klassisch
+      </button>
+      <button type="button" aria-pressed="false" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 0 8px; border-radius: 12px; border: 1px solid #2F2924; background: transparent; color: #C9BEB0; font-family: inherit; font-size: 12px">
+        <span style="width: 20px; height: 64px; background: #2B3F63"></span>Schlicht
+      </button>
+      <button type="button" aria-pressed="true" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 0 8px; border-radius: 12px; border: 2px solid #D6A24A; background: transparent; color: #F2EBDF; font-family: inherit; font-size: 12px; font-weight: 600">
+        <span style="width: 20px; height: 64px; background: #2B3F63; display: flex; align-items: center; justify-content: center"><span style="width: 8px; height: 40px; background: #F3ECE0; opacity: 0.85"></span></span>Kräftig
+      </button>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px">
+      <span style="font-size: 13px; color: #A3978A; margin-right: 2px">Farbe</span>
+      <button type="button" aria-label="Dunkelblau" aria-pressed="true" style="width: 30px; height: 30px; border-radius: 15px; background: #2B3F63; border: 2px solid #D6A24A; padding: 0"></button>
+      <button type="button" aria-label="Weinrot" aria-pressed="false" style="width: 30px; height: 30px; border-radius: 15px; background: #8E2F3C; border: 1px solid #2F2924; padding: 0"></button>
+      <button type="button" aria-label="Moosgrün" aria-pressed="false" style="width: 30px; height: 30px; border-radius: 15px; background: #4E6B3A; border: 1px solid #2F2924; padding: 0"></button>
+      <button type="button" aria-label="Sand" aria-pressed="false" style="width: 30px; height: 30px; border-radius: 15px; background: #C9A27A; border: 1px solid #2F2924; padding: 0"></button>
+      <button type="button" style="margin-left: auto; height: 34px; padding: 0 12px; border-radius: 17px; border: 1px solid #2F2924; background: transparent; color: #F2EBDF; font-family: inherit; font-size: 13px; font-weight: 600">Aus Foto</button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

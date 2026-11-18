@@ -2,6 +2,12 @@
 
 Data tests for a bookshelf app that draws real book spines at real size.
 
+## Design
+
+`design/DESIGN.md` beschreibt das App-Design (Farben, Schriften, Bausteine, Regal-Logik, Screens)
+mit Tokens für CSS und SwiftUI. Die Screens aus dem Design-Canvas liegen in `design/screens/`,
+der Rücken-Generator als lauffähiger Prototyp in `design/prototypes/spine-lab.html`.
+
 ## ISBN tester
 
 `index.html` is a single-page tester, served by GitHub Pages at

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Homescreen-Widgets</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Hanken+Grotesk:wght@500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; padding: 40px 16px 0; background: #3E4A57; color: #F2EBDF; font-family: 'Hanken Grotesk', 'Helvetica Neue', sans-serif; display: flex; flex-direction: column; gap: 18px">
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px">
+    <div style="height: 170px; box-sizing: border-box; padding: 14px; border-radius: 22px; background: #2A201B; display: flex; gap: 12px; align-items: flex-end; box-shadow: 0 8px 20px rgba(0,0,0,0.25)">
+      <div style="flex: none; width: 24px; height: 130px; background: #2B3F63; border-radius: 1px; box-shadow: inset 2px 0 0 rgba(255,255,255,0.1), inset -2px 0 0 rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center">
+        <span style="writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; font-weight: 700; font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase">Der Zauberberg</span>
+      </div>
+      <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #D6A24A">Liest du</span>
+        <span style="font-family: 'Young Serif', Georgia, serif; font-size: 15px; line-height: 1.15">Der Zauberberg</span>
+        <span style="height: 4px; border-radius: 2px; background: #3F332B"><span style="display: block; width: 20%; height: 4px; border-radius: 2px; background: #D6A24A"></span></span>
+        <span style="font-size: 11px; color: #A3978A; font-variant-numeric: tabular-nums">S. 212 / 1059</span>
+      </div>
+    </div>
+    <div style="height: 170px; box-sizing: border-box; padding: 16px; border-radius: 22px; background: #2A201B; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 8px 20px rgba(0,0,0,0.25)">
+      <span style="font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #D6A24A">Lesejahr 2026</span>
+      <div style="display: flex; align-items: baseline; gap: 6px">
+        <span style="font-family: 'Young Serif', Georgia, serif; font-size: 44px; line-height: 1">17</span>
+        <span style="font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 16px; color: #C9BEB0">von 24</span>
+      </div>
+      <div style="display: flex; gap: 2px; align-items: flex-end; height: 30px">
+        <span style="flex: 1; height: 22px; background: #E2BE3A"></span><span style="flex: 1; height: 26px; background: #2B3F63"></span><span style="flex: 1; height: 26px; background: #E8E1D2"></span><span style="flex: 1; height: 30px; background: #D25637"></span><span style="flex: 1; height: 26px; background: #2F7A68"></span><span style="flex: 1; height: 26px; background: #9B2B2E"></span><span style="flex: 1; height: 30px; background: #88A8C4"></span><span style="flex: 1; height: 30px; background: #26221F"></span><span style="flex: 1; height: 22px; background: #E2BE3A"></span><span style="flex: 1; height: 28px; background: #5B4060"></span><span style="flex: 1; height: 26px; background: #1F6FA8"></span><span style="flex: 1; height: 29px; background: #C9A27A"></span><span style="flex: 1; height: 26px; background: #3A3734"></span><span style="flex: 1; height: 29px; background: #4E6B3A"></span><span style="flex: 1; height: 22px; background: #E2BE3A"></span><span style="flex: 1; height: 30px; background: #8E2F3C"></span><span style="flex: 1; height: 26px; background: #2B3F63"></span>
+      </div>
+    </div>
+  </div>
+  <div style="height: 170px; border-radius: 22px; overflow: hidden; background: #2A201B; box-shadow: 0 8px 20px rgba(0,0,0,0.25); display: flex; align-items: flex-end">
+    <dc-import name="Shelf" width="358" rows="1" k="0.62" seed="6" theme="lesesaal" light="lichterkette" deco="katze" covers="{{ true }}" hint-size="358px,161px"></dc-import>
+  </div>
+  <div style="height: 376px; border-radius: 22px; overflow: hidden; background: #1B2033; box-shadow: 0 8px 20px rgba(0,0,0,0.25); display: flex; flex-direction: column">
+    <dc-import name="Shelf" width="358" rows="2" k="0.62" seed="9" theme="tinte" board="birke" light="mondlicht" deco="pflanze,lampe" covers="{{ true }}" hint-size="358px,322px"></dc-import>
+    <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; padding: 0 18px">
+      <span style="font-family: 'Young Serif', Georgia, serif; font-size: 16px">Mein Regal</span>
+      <span style="font-size: 13px; color: #B9BED3; font-variant-numeric: tabular-nums">86 Bücher · 1,63 m</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>
