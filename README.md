@@ -13,7 +13,7 @@ der Rücken-Generator als lauffähiger Prototyp in `design/prototypes/spine-lab.
 `index.html` is a single-page tester, served by GitHub Pages at
 https://mhaack.github.io/spine-lab/. Enter an ISBN (or tap a sample) to compare
 what each source returns: pages, height, dimensions and cover. "Run all test
-ISBNs" checks sixteen German and five English editions and shows a hit rate per field.
+ISBNs" checks sixteen German and thirteen English editions and shows a hit rate per field.
 
 ## `isbn-lookup` Edge Function
 
